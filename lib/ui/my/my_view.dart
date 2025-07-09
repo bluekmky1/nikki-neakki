@@ -1,0 +1,149 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../routes/routes.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_text_styles.dart';
+import '../common/widgets/bottom_navigation_bar_widget.dart';
+
+class MyView extends ConsumerStatefulWidget {
+  const MyView({super.key});
+
+  @override
+  ConsumerState<MyView> createState() => _MyViewState();
+}
+
+class _MyViewState extends ConsumerState<MyView> {
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            '마이페이지',
+            style: AppTextStyles.textSb22,
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              // 프로필 정보
+              Row(
+                children: <Widget>[
+                  const CircleAvatar(
+                    radius: 32,
+                    backgroundColor: AppColors.main,
+                  ),
+                  const SizedBox(width: 16),
+                  const Text(
+                    '닉네임',
+                    style: AppTextStyles.textB18,
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.more_vert,
+                      color: AppColors.gray900,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.white,
+                  boxShadow: const <BoxShadow>[
+                    BoxShadow(
+                      color: AppColors.gray300,
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Text(
+                      '내가 자주 식사하는 시간대',
+                      style: AppTextStyles.textB16,
+                    ),
+                    const SizedBox(height: 12),
+                    MealHeatBar(frequency: mealFrequency),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: BottomNavigationBarWidget(
+          currentRouteName: Routes.myPage.name,
+        ),
+      );
+}
+
+class MealHeatBar extends StatelessWidget {
+  final List<double> frequency; // 24개, 0~1
+
+  const MealHeatBar({required this.frequency, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const double barHeight = 32;
+    const double barWidth = 11.5;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        SizedBox(
+          height: barHeight,
+          child: Row(
+            children: List<Widget>.generate(24, (int i) {
+              final double value = frequency[i].clamp(0.0, 1.0);
+              return Container(
+                width: barWidth,
+                height: barHeight,
+                margin: const EdgeInsets.symmetric(horizontal: 1),
+                decoration: BoxDecoration(
+                  color: getHeatColor(value),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              );
+            }),
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text('0시'),
+            Text('6시'),
+            Text('12시'),
+            Text('18시'),
+            Text('24시'),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+Color getHeatColor(double value) {
+  if (value <= 0.3) {
+    return AppColors.gray200;
+  } else if (value <= 0.5) {
+    return AppColors.main;
+  } else if (value <= 0.7) {
+    return AppColors.heat1;
+  } else {
+    return AppColors.heat3;
+  }
+}
+
+// 24시간을 1시간 단위로 나눈 식사 빈도 (0~1 사이 값)
+final List<double> mealFrequency = <double>[
+  0.0, 0.0, 0.0, 0.1, 0.2, 0.3, 0.7, 0.9, 0.8, 0.4, // 0~9시
+  0.2, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.6, 0.8, // 10~19시
+  0.7, 0.4, 0.2, 0.1 // 20~23시
+];
