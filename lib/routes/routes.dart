@@ -18,6 +18,12 @@ class Routes {
     path: '/home',
   );
 
+  // 음식 기록
+  static const RouteInfo recordFood = RouteInfo(
+    name: '/record-food',
+    path: '/record-food',
+  );
+
   // 자주 먹는 음식들 관리
   static const RouteInfo frequentlyEatenFoods = RouteInfo(
     name: '/frequently-eaten-foods',

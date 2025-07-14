@@ -1,37 +1,71 @@
 import 'package:equatable/equatable.dart';
-import '../../../../core/loading_status.dart';
+import '../../domain/meal/model/food_model.dart';
+import '../../domain/meal/model/meal_model.dart';
+import '../common/consts/meal_type.dart';
 
 class HomeState extends Equatable {
-  final LoadingStatus loadingStatus;
-  final String example;
+  final DateTime selectedDate;
+  final DateTime displayWeekStartDate;
   final int selectedTabIndex;
+  final List<MealModel> myMeals;
+  final List<MealModel> otherMeals;
 
   const HomeState({
-    required this.loadingStatus,
-    required this.example,
+    required this.selectedDate,
+    required this.displayWeekStartDate,
     required this.selectedTabIndex,
+    required this.myMeals,
+    required this.otherMeals,
   });
 
-  const HomeState.init()
-      : loadingStatus = LoadingStatus.none,
-        example = '',
-        selectedTabIndex = 0;
+  HomeState.init()
+      : selectedDate = DateTime.now(),
+        displayWeekStartDate = DateTime.now(),
+        selectedTabIndex = 0,
+        myMeals = <MealModel>[
+          MealModel(
+            id: '1',
+            thumbnailUrl: 'https://via.placeholder.com/150',
+            mealTime: DateTime.now(),
+            mealType: MealType.breakfast,
+            foods: const <FoodModel>[
+              FoodModel(
+                id: '1',
+                name: '알리알리올리숑',
+                category: '파스타',
+              ),
+            ],
+          ),
+        ],
+        otherMeals = <MealModel>[];
 
   HomeState copyWith({
-    LoadingStatus? loadingStatus,
-    String? example,
+    DateTime? selectedDate,
+    DateTime? displayWeekStartDate,
     int? selectedTabIndex,
+    List<MealModel>? myMeals,
+    List<MealModel>? otherMeals,
   }) =>
       HomeState(
-        loadingStatus: loadingStatus ?? this.loadingStatus,
-        example: example ?? this.example,
+        selectedDate: selectedDate ?? this.selectedDate,
+        displayWeekStartDate: displayWeekStartDate ?? this.displayWeekStartDate,
         selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
+        myMeals: myMeals ?? this.myMeals,
+        otherMeals: otherMeals ?? this.otherMeals,
       );
 
   @override
   List<Object> get props => <Object>[
-        loadingStatus,
-        example,
+        selectedDate,
         selectedTabIndex,
+        myMeals,
+        otherMeals,
       ];
+
+  bool get isToday {
+    final DateTime now = DateTime.now();
+    return selectedDate.year == now.year &&
+        selectedDate.month == now.month &&
+        selectedDate.day == now.day;
+  }
 }

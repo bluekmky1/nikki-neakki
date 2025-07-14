@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../domain/meal/model/meal_model.dart';
 import '../../routes/routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../util/date_time_formatter.dart';
+import '../common/consts/meal_type.dart';
 import '../common/widgets/bottom_navigation_bar_widget.dart';
 import 'home_state.dart';
 import 'home_view_model.dart';
+import 'widgets/add_food_card_widget.dart';
 import 'widgets/food_card_widget.dart';
 import 'widgets/one_line_calendar_widget.dart';
 import 'widgets/summary_card_widget.dart';
@@ -20,12 +24,14 @@ class HomeView extends ConsumerStatefulWidget {
 }
 
 class _HomeViewState extends ConsumerState<HomeView> {
-  final PageController _pageController = PageController();
-
   @override
   Widget build(BuildContext context) {
     final HomeState state = ref.watch(homeViewModelProvider);
     final HomeViewModel viewModel = ref.read(homeViewModelProvider.notifier);
+    final bool isInDisplayWeek = !state.selectedDate
+            .isBefore(state.displayWeekStartDate) &&
+        !state.selectedDate
+            .isAfter(state.displayWeekStartDate.add(const Duration(days: 6)));
     return Scaffold(
       bottomNavigationBar: BottomNavigationBarWidget(
         currentRouteName: Routes.home.name,
@@ -33,8 +39,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
+            centerTitle: true,
             title: Text(
-              '2025년 7월',
+              isInDisplayWeek
+                  ? DateTimeFormatter.yearMonthFormat(state.selectedDate)
+                  : DateTimeFormatter.yearMonthFormat(
+                      state.displayWeekStartDate),
               style: AppTextStyles.textSb22.copyWith(
                 color: AppColors.gray900,
               ),
@@ -42,19 +52,21 @@ class _HomeViewState extends ConsumerState<HomeView> {
             actions: <Widget>[
               IconButton(
                 onPressed: () {
-                  context.goNamed(Routes.login.name);
+                  showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                  );
                 },
-                icon: const Icon(Icons.person),
+                icon: const Icon(Icons.today),
               ),
             ],
           ),
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
-              child: OneLineCalendar(
-                initialDate: DateTime.now(),
-                onDateSelected: (DateTime date) {},
-              ),
+              padding: EdgeInsets.fromLTRB(16, 6, 16, 0),
+              child: OneLineCalendar(),
             ),
           ),
           const SliverToBoxAdapter(
@@ -71,49 +83,90 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 labels: const <String>['내 음식', '니 음식'],
                 onTabChanged: (int index) {
                   viewModel.onTabChanged(index: index);
-
-                  _pageController.animateToPage(
-                    index,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
                 },
               ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 850,
-              child: PageView.builder(
-                itemCount: 2,
-                controller: _pageController,
-                onPageChanged: (int index) {
-                  viewModel.onTabChanged(index: index);
-                },
-                itemBuilder: (BuildContext context, int index) => const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: <Widget>[
-                      FoodCardWidget(
-                        title: '아침',
-                        description: '알리오 올리오',
-                      ),
-                      SizedBox(height: 16),
-                      FoodCardWidget(
-                        title: '점심',
-                        description: '알리오 올리오',
-                      ),
-                      SizedBox(height: 16),
-                      FoodCardWidget(
-                        title: '저녁',
-                        description: '알리오 올리오',
-                      ),
-                    ],
-                  ),
+          if (state.selectedTabIndex == 0)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: <Widget>[
+                    const SizedBox(height: 8),
+                    ...List<Widget>.generate(
+                      MealType.values.length,
+                      (int index) {
+                        if (state.myMeals.any((MealModel meal) =>
+                            meal.mealType == MealType.values[index])) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: FoodCardWidget(
+                              title: MealType.values[index].name,
+                              foods: state.myMeals
+                                  .firstWhere((MealModel meal) =>
+                                      meal.mealType == MealType.values[index])
+                                  .foods,
+                            ),
+                          );
+                        } else {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: AddFoodCardWidget(
+                              title: MealType.values[index].name,
+                              onTap: () {
+                                context.pushNamed(Routes.recordFood.name);
+                              },
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 50),
+                  ],
                 ),
               ),
             ),
-          ),
+          if (state.selectedTabIndex == 1)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: <Widget>[
+                    const SizedBox(height: 8),
+                    ...List<Widget>.generate(
+                      MealType.values.length,
+                      (int index) {
+                        if (state.otherMeals.any((MealModel meal) =>
+                            meal.mealType == MealType.values[index])) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: FoodCardWidget(
+                              title: MealType.values[index].name,
+                              foods: state.otherMeals
+                                  .firstWhere((MealModel meal) =>
+                                      meal.mealType == MealType.values[index])
+                                  .foods,
+                            ),
+                          );
+                        } else {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: AddFoodCardWidget(
+                              title: MealType.values[index].name,
+                              onTap: () {
+                                context.pushNamed(Routes.recordFood.name);
+                              },
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 50),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );

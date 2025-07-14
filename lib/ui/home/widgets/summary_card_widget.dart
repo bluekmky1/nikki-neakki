@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../domain/meal/model/meal_model.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
-
-class MealTime {
-  final String name;
-  final TimeOfDay time;
-
-  MealTime({required this.name, required this.time});
-}
+import '../../../util/date_time_formatter.dart';
+import '../home_state.dart';
+import '../home_view_model.dart';
 
 class MealTimelineBar extends StatefulWidget {
-  final List<MealTime> myMeals;
-  final List<MealTime> otherMeals;
+  final List<MealModel> myMeals;
+  final List<MealModel> otherMeals;
 
   const MealTimelineBar({
     required this.myMeals,
@@ -60,7 +58,7 @@ class _MealTimelineBarState extends State<MealTimelineBar>
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 56),
           child: SizedBox(
             width: timelineWidth,
             child: Stack(
@@ -82,29 +80,42 @@ class _MealTimelineBarState extends State<MealTimelineBar>
                 Positioned(
                   left: 0,
                   top: barTop,
-                  width: timelineWidth * nowFraction,
+                  width: timelineWidth,
                   height: barHeight,
                   child: Container(
+                    clipBehavior: Clip.hardEdge,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: <Color>[
-                          AppColors.main.withValues(alpha: 0.2),
-                          AppColors.main,
-                          AppColors.sub
-                        ],
-                      ),
-                      borderRadius: BorderRadius.horizontal(
-                        left: const Radius.circular(barHeight / 2),
-                        right: Radius.circular(
-                            nowFraction == 1.0 ? barHeight / 2 : 0),
-                      ),
+                      borderRadius: BorderRadius.circular(barHeight / 2),
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          width: timelineWidth * nowFraction,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: <Color>[
+                                AppColors.main.withValues(alpha: 0.2),
+                                AppColors.main,
+                                AppColors.sub
+                              ],
+                            ),
+                            borderRadius: BorderRadius.horizontal(
+                              left: const Radius.circular(barHeight / 2),
+                              right: nowFraction == 1.0
+                                  ? const Radius.circular(barHeight / 2)
+                                  : Radius.zero,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
                 // 식사 위치 점 + 시간
                 ...widget.myMeals.map(
-                  (MealTime meal) {
-                    final double fraction = _timeToFraction(meal.time);
+                  (MealModel meal) {
+                    final double fraction =
+                        _timeToFraction(TimeOfDay.fromDateTime(meal.mealTime));
                     final double left = fraction * timelineWidth;
                     return Stack(
                       children: <Widget>[
@@ -122,7 +133,7 @@ class _MealTimelineBarState extends State<MealTimelineBar>
                             ),
                             child: Center(
                               child: Text(
-                                meal.name,
+                                meal.mealType.name,
                                 style: AppTextStyles.textR12.copyWith(
                                   color: AppColors.white,
                                 ),
@@ -137,8 +148,9 @@ class _MealTimelineBarState extends State<MealTimelineBar>
                 ),
 
                 ...widget.otherMeals.map(
-                  (MealTime meal) {
-                    final double fraction = _timeToFraction(meal.time);
+                  (MealModel meal) {
+                    final double fraction =
+                        _timeToFraction(TimeOfDay.fromDateTime(meal.mealTime));
                     final double left = fraction * timelineWidth;
                     return Stack(
                       children: <Widget>[
@@ -156,7 +168,7 @@ class _MealTimelineBarState extends State<MealTimelineBar>
                             ),
                             child: Center(
                               child: Text(
-                                meal.name,
+                                meal.mealType.name,
                                 style: AppTextStyles.textR12.copyWith(
                                   color: AppColors.white,
                                 ),
@@ -201,106 +213,83 @@ class _MealTimelineBarState extends State<MealTimelineBar>
   }
 }
 
-class SummaryCardWidget extends StatelessWidget {
+class SummaryCardWidget extends ConsumerWidget {
   const SummaryCardWidget({super.key});
 
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-        decoration: BoxDecoration(
-          color: AppColors.gray900,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.white, width: 3),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-              color: AppColors.gray900.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 10),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final HomeState state = ref.watch(homeViewModelProvider);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.gray900,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.white, width: 3),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppColors.gray900.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  '''${state.isToday ? '오늘의' : DateTimeFormatter.yearMonthDayFormat(state.selectedDate)} 밥 시간''',
+                  style: AppTextStyles.textB18.copyWith(
+                    color: AppColors.white,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  width: 16,
+                  height: 16,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.deepMain,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '나',
+                  style: AppTextStyles.textR14.copyWith(
+                    color: AppColors.white,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 16,
+                  height: 16,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.sub,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '상대',
+                  style: AppTextStyles.textR14.copyWith(
+                    color: AppColors.white,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Row(
-                children: <Widget>[
-                  Text(
-                    '오늘의 밥 시간',
-                    style: AppTextStyles.textB18.copyWith(
-                      color: AppColors.white,
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    width: 16,
-                    height: 16,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.deepMain,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '나',
-                    style: AppTextStyles.textR14.copyWith(
-                      color: AppColors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    width: 16,
-                    height: 16,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.sub,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '상대',
-                    style: AppTextStyles.textR14.copyWith(
-                      color: AppColors.white,
-                    ),
-                  ),
-                ],
-              ),
+          ),
+          // 식사 시간 타임라인 추가
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 16),
+            child: MealTimelineBar(
+              myMeals: state.myMeals,
+              otherMeals: state.otherMeals,
             ),
-            // 식사 시간 타임라인 추가
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 16),
-              child: MealTimelineBar(
-                myMeals: <MealTime>[
-                  MealTime(
-                    name: '아침',
-                    time: const TimeOfDay(hour: 8, minute: 30),
-                  ),
-                  MealTime(
-                    name: '점심',
-                    time: const TimeOfDay(hour: 12, minute: 10),
-                  ),
-                  MealTime(
-                    name: '저녁',
-                    time: const TimeOfDay(hour: 19, minute: 0),
-                  ),
-                ],
-                otherMeals: <MealTime>[
-                  MealTime(
-                    name: '아침',
-                    time: const TimeOfDay(hour: 8, minute: 40),
-                  ),
-                  MealTime(
-                    name: '점심',
-                    time: const TimeOfDay(hour: 12, minute: 10),
-                  ),
-                  MealTime(
-                    name: '저녁',
-                    time: const TimeOfDay(hour: 20, minute: 30),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
+  }
 }

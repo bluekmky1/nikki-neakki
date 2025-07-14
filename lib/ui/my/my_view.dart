@@ -16,67 +16,109 @@ class MyView extends ConsumerStatefulWidget {
 class _MyViewState extends ConsumerState<MyView> {
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            '마이페이지',
-            style: AppTextStyles.textSb22,
-          ),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // 프로필 정보
-              Row(
-                children: <Widget>[
-                  const CircleAvatar(
-                    radius: 32,
-                    backgroundColor: AppColors.main,
-                  ),
-                  const SizedBox(width: 16),
-                  const Text(
-                    '닉네임',
-                    style: AppTextStyles.textB18,
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.more_vert,
-                      color: AppColors.gray900,
-                    ),
-                  ),
-                ],
+        body: CustomScrollView(
+          slivers: <Widget>[
+            SliverAppBar(
+              centerTitle: false,
+              title: const Text(
+                '닉네임',
+                style: AppTextStyles.textSb22,
               ),
-              const SizedBox(height: 32),
-              Container(
+              actions: <Widget>[
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.more_vert),
+                ),
+              ],
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: AppColors.white,
-                  boxShadow: const <BoxShadow>[
-                    BoxShadow(
-                      color: AppColors.gray300,
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    const Text(
-                      '내가 자주 식사하는 시간대',
-                      style: AppTextStyles.textB16,
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: const <BoxShadow>[
+                          BoxShadow(
+                            color: AppColors.gray200,
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            const Text(
+                              '내가 자주 식사하는 시간대',
+                              style: AppTextStyles.textB16,
+                            ),
+                            const SizedBox(height: 12),
+                            MealHeatBar(frequency: mealFrequency),
+                          ],
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    MealHeatBar(frequency: mealFrequency),
+                    const SizedBox(height: 16),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: const <BoxShadow>[
+                          BoxShadow(
+                            color: AppColors.gray200,
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            const Text(
+                              '식사하세요! 알림 설정',
+                              style: AppTextStyles.textB16,
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              '알림 설정을 통해 식사 알림을 받을 수 있어요.',
+                              style: AppTextStyles.textR14,
+                            ),
+                            const SizedBox(height: 12),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                backgroundColor: AppColors.deepMain,
+                                foregroundColor: AppColors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () {},
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text(
+                                    '알림 추가',
+                                    style: AppTextStyles.textM16,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         bottomNavigationBar: BottomNavigationBarWidget(
           currentRouteName: Routes.myPage.name,

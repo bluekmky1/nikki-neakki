@@ -10,6 +10,8 @@ class AppColors {
   static const Color sub = Color(0xFF26A69A);
   static const Color accent = Color(0xFFE0F7FA);
 
+  // static const Color darkChocolate = Color(0xFF2E2721);
+
   // heat
   static const Color heat1 = Color(0xFF66B9A4);
   static const Color heat2 = Color(0xFF00897B);

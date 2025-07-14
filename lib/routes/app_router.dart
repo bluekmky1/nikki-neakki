@@ -8,6 +8,7 @@ import '../ui/frequently_eaten_foods_setting/frequently_eaten_foods_setting_view
 import '../ui/home/home_view.dart';
 import '../ui/login/login_view.dart';
 import '../ui/my/my_view.dart';
+import '../ui/record_food/record_food_view.dart';
 import 'app_router_interceptor.dart';
 import 'redirect_notifier.dart';
 import 'routes.dart';
@@ -53,6 +54,15 @@ class AppRouter {
         pageBuilder: (BuildContext context, GoRouterState state) =>
             const NoTransitionPage<dynamic>(
           child: HomeView(),
+        ),
+      ),
+
+      GoRoute(
+        name: Routes.recordFood.name,
+        path: Routes.recordFood.path,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            const NoTransitionPage<dynamic>(
+          child: RecordFoodView(),
         ),
       ),
 

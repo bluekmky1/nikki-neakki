@@ -39,33 +39,39 @@ class _BottomNavigationBarWidgetState
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
-                  _BottomNavigationBarItemWidget(
-                    label: '홈',
-                    selectedIcon: Icons.home_rounded,
-                    unselectedIcon: Icons.home_rounded,
-                    isSelected: widget.currentRouteName == Routes.home.name,
-                    onTap: () {
-                      context.goNamed(Routes.home.name);
-                    },
+                  Expanded(
+                    child: _BottomNavigationBarItemWidget(
+                      label: '홈',
+                      selectedIcon: Icons.home_rounded,
+                      unselectedIcon: Icons.home_rounded,
+                      isSelected: widget.currentRouteName == Routes.home.name,
+                      onTap: () {
+                        context.goNamed(Routes.home.name);
+                      },
+                    ),
                   ),
-                  _BottomNavigationBarItemWidget(
-                    label: '자주 먹는 음식',
-                    selectedIcon: Icons.restaurant,
-                    unselectedIcon: Icons.restaurant,
-                    isSelected: widget.currentRouteName ==
-                        Routes.frequentlyEatenFoods.name,
-                    onTap: () {
-                      context.goNamed(Routes.frequentlyEatenFoods.name);
-                    },
+                  Expanded(
+                    child: _BottomNavigationBarItemWidget(
+                      label: '자주 먹는 음식',
+                      selectedIcon: Icons.restaurant,
+                      unselectedIcon: Icons.restaurant,
+                      isSelected: widget.currentRouteName ==
+                          Routes.frequentlyEatenFoods.name,
+                      onTap: () {
+                        context.goNamed(Routes.frequentlyEatenFoods.name);
+                      },
+                    ),
                   ),
-                  _BottomNavigationBarItemWidget(
-                    label: '마이페이지',
-                    selectedIcon: Icons.person,
-                    unselectedIcon: Icons.person,
-                    isSelected: widget.currentRouteName == Routes.myPage.name,
-                    onTap: () {
-                      context.goNamed(Routes.myPage.name);
-                    },
+                  Expanded(
+                    child: _BottomNavigationBarItemWidget(
+                      label: '마이페이지',
+                      selectedIcon: Icons.person,
+                      unselectedIcon: Icons.person,
+                      isSelected: widget.currentRouteName == Routes.myPage.name,
+                      onTap: () {
+                        context.goNamed(Routes.myPage.name);
+                      },
+                    ),
                   ),
                 ],
               ),
