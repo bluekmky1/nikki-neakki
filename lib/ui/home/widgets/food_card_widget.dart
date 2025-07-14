@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../domain/meal/model/food_model.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
+import '../../common/widgets/button/bottom_sheet_row_button_widget.dart';
 
 class FoodCardWidget extends StatefulWidget {
   const FoodCardWidget({
@@ -65,7 +66,26 @@ class _FoodCardWidgetState extends State<FoodCardWidget> {
                   ),
                   const Spacer(),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) => SafeArea(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                BottomSheetRowButtonWidget(
+                                  title: '수정',
+                                  icon: Icons.edit,
+                                  onTap: () {},
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                     child: const Icon(
                       Icons.more_vert_outlined,
                       color: AppColors.gray600,

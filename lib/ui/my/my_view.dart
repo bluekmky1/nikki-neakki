@@ -5,6 +5,7 @@ import '../../routes/routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../common/widgets/bottom_navigation_bar_widget.dart';
+import '../common/widgets/tab/segmented_tab_widget.dart';
 
 class MyView extends ConsumerStatefulWidget {
   const MyView({super.key});
@@ -19,10 +20,11 @@ class _MyViewState extends ConsumerState<MyView> {
         body: CustomScrollView(
           slivers: <Widget>[
             SliverAppBar(
+              toolbarHeight: 80,
               centerTitle: false,
               title: const Text(
                 '닉네임',
-                style: AppTextStyles.textSb22,
+                style: AppTextStyles.textB22,
               ),
               actions: <Widget>[
                 IconButton(
@@ -33,37 +35,10 @@ class _MyViewState extends ConsumerState<MyView> {
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: const <BoxShadow>[
-                          BoxShadow(
-                            color: AppColors.gray200,
-                            blurRadius: 10,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            const Text(
-                              '내가 자주 식사하는 시간대',
-                              style: AppTextStyles.textB16,
-                            ),
-                            const SizedBox(height: 12),
-                            MealHeatBar(frequency: mealFrequency),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
                     DecoratedBox(
                       decoration: BoxDecoration(
                         color: AppColors.white,
@@ -114,6 +89,85 @@ class _MyViewState extends ConsumerState<MyView> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Text(
+                        '음식 기록',
+                        style: AppTextStyles.textB20,
+                      ),
+                    ),
+                    SegmentedTabWidget(
+                      tabTitles: const <String>['나', '상대'],
+                      onTabChanged: (int index) {},
+                    ),
+                    const SizedBox(height: 16),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: const <BoxShadow>[
+                          BoxShadow(
+                            color: AppColors.gray200,
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            const Text(
+                              '자주 식사하는 시간대',
+                              style: AppTextStyles.textB16,
+                            ),
+                            const SizedBox(height: 12),
+                            MealHeatBar(frequency: mealFrequency),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: const <BoxShadow>[
+                          BoxShadow(
+                            color: AppColors.gray200,
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              '자주 먹는 음식 순위',
+                              style: AppTextStyles.textB16,
+                            ),
+                            Row(
+                              children: <Widget>[
+                                SizedBox(height: 12),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text('1. 피자'),
+                                Text('2. 치킨'),
+                                Text('3. 햄버거'),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -134,7 +188,7 @@ class MealHeatBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const double barHeight = 32;
-    const double barWidth = 11.5;
+    final double barWidth = (MediaQuery.of(context).size.width - 64 - 48) / 24;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/loading_status.dart';
+import '../../domain/meal/model/food_model.dart';
 import 'record_food_state.dart';
 
 final AutoDisposeStateNotifierProvider<RecordFoodViewModel, RecordFoodState>
@@ -14,7 +14,49 @@ class RecordFoodViewModel extends StateNotifier<RecordFoodState> {
     required RecordFoodState state,
   }) : super(state);
 
-  void onLogin() {
-    state = state.copyWith(loadingStatus: LoadingStatus.loading);
+  Future<void> addToCategory({required String category}) async {
+    state = state.copyWith(
+      allFoodCategories: <String>[...state.allFoodCategories, category],
+      searchedFoodCategories: <String>[...state.allFoodCategories, category],
+    );
+  }
+
+  void onSearchFoodCategory({required String searchKeyword}) {
+    state = state.copyWith(
+      searchKeyword: searchKeyword,
+      searchedFoodCategories: state.allFoodCategories
+          .where((String foodCategory) =>
+              foodCategory.toLowerCase().contains(searchKeyword.toLowerCase()))
+          .toList(),
+    );
+  }
+
+  void onSelectFoodCategory({required String category}) {
+    state = state.copyWith(
+      selectedFoodCategory: category,
+    );
+  }
+
+  void addFood({required String foodName}) {
+    state = state.copyWith(
+      foods: <FoodModel>[
+        ...state.foods,
+        FoodModel(
+          id: '',
+          name: foodName,
+          category: state.selectedFoodCategory,
+        ),
+      ],
+    );
+
+    state = state.copyWith(
+      selectedFoodCategory: '',
+    );
+  }
+
+  void deleteFood({required int foodIndex}) {
+    state = state.copyWith(
+      foods: List<FoodModel>.from(state.foods)..removeAt(foodIndex),
+    );
   }
 }

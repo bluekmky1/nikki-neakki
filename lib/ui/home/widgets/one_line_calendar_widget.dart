@@ -84,7 +84,7 @@ class _OneLineCalendarState extends ConsumerState<OneLineCalendar> {
                           color: isSelected
                               ? AppColors.white
                               : afterToday
-                                  ? AppColors.gray600
+                                  ? AppColors.gray500
                                   : AppColors.gray900,
                         ),
                       ),
@@ -95,7 +95,7 @@ class _OneLineCalendarState extends ConsumerState<OneLineCalendar> {
                           color: isSelected
                               ? AppColors.white
                               : afterToday
-                                  ? AppColors.gray600
+                                  ? AppColors.gray500
                                   : AppColors.gray900,
                         ),
                       ),

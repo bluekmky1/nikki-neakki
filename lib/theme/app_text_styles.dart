@@ -10,6 +10,12 @@ abstract class AppTextStyles {
     fontWeight: FontWeight.w400,
   );
 
+  static const TextStyle textB22 = TextStyle(
+    fontSize: 22,
+    height: 1.18,
+    fontWeight: FontWeight.w700,
+  );
+
   static const TextStyle textB20 = TextStyle(
     fontSize: 20,
     height: 1.2,

@@ -9,6 +9,7 @@ import '../../theme/app_text_styles.dart';
 import '../../util/date_time_formatter.dart';
 import '../common/consts/meal_type.dart';
 import '../common/widgets/bottom_navigation_bar_widget.dart';
+import '../common/widgets/tab/segmented_tab_widget.dart';
 import 'home_state.dart';
 import 'home_view_model.dart';
 import 'widgets/add_food_card_widget.dart';
@@ -59,7 +60,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     lastDate: DateTime.now(),
                   );
                 },
-                icon: const Icon(Icons.today),
+                style: IconButton.styleFrom(
+                  foregroundColor: AppColors.gray900,
+                ),
+                icon: const Icon(Icons.today_rounded),
               ),
             ],
           ),
@@ -78,173 +82,67 @@ class _HomeViewState extends ConsumerState<HomeView> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: SegmentedTab(
-                selectedIndex: state.selectedTabIndex,
-                labels: const <String>['내 음식', '니 음식'],
+              child: SegmentedTabWidget(
+                tabTitles: const <String>['내 음식', '니 음식'],
                 onTabChanged: (int index) {
                   viewModel.onTabChanged(index: index);
                 },
               ),
             ),
           ),
-          if (state.selectedTabIndex == 0)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: <Widget>[
-                    const SizedBox(height: 8),
-                    ...List<Widget>.generate(
-                      MealType.values.length,
-                      (int index) {
-                        if (state.myMeals.any((MealModel meal) =>
-                            meal.mealType == MealType.values[index])) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: FoodCardWidget(
-                              title: MealType.values[index].name,
-                              foods: state.myMeals
-                                  .firstWhere((MealModel meal) =>
-                                      meal.mealType == MealType.values[index])
-                                  .foods,
-                            ),
-                          );
-                        } else {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: AddFoodCardWidget(
-                              title: MealType.values[index].name,
-                              onTap: () {
-                                context.pushNamed(Routes.recordFood.name);
-                              },
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 50),
-                  ],
-                ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: <Widget>[
+                  const SizedBox(height: 8),
+                  ..._buildMealList(
+                    meals: state.selectedTabIndex == 0
+                        ? state.myMeals
+                        : state.otherMeals,
+                    context: context,
+                  ),
+                  const SizedBox(height: 50),
+                ],
               ),
             ),
-          if (state.selectedTabIndex == 1)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: <Widget>[
-                    const SizedBox(height: 8),
-                    ...List<Widget>.generate(
-                      MealType.values.length,
-                      (int index) {
-                        if (state.otherMeals.any((MealModel meal) =>
-                            meal.mealType == MealType.values[index])) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: FoodCardWidget(
-                              title: MealType.values[index].name,
-                              foods: state.otherMeals
-                                  .firstWhere((MealModel meal) =>
-                                      meal.mealType == MealType.values[index])
-                                  .foods,
-                            ),
-                          );
-                        } else {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: AddFoodCardWidget(
-                              title: MealType.values[index].name,
-                              onTap: () {
-                                context.pushNamed(Routes.recordFood.name);
-                              },
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 50),
-                  ],
-                ),
-              ),
-            ),
+          ),
         ],
       ),
     );
   }
-}
 
-class SegmentedTab extends ConsumerWidget {
-  final int selectedIndex;
-  final List<String> labels;
-  final Function(int) onTabChanged;
-
-  const SegmentedTab({
-    required this.selectedIndex,
-    required this.labels,
-    required this.onTabChanged,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) => Container(
-        height: 48,
-        decoration: BoxDecoration(
-          color: AppColors.gray350,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Stack(
-          children: <Widget>[
-            // 움직이는 흰색 상자
-            AnimatedAlign(
-              alignment: selectedIndex == 0
-                  ? Alignment.centerLeft
-                  : Alignment.centerRight,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.ease,
-              child: FractionallySizedBox(
-                widthFactor: 0.5,
-                heightFactor: 1.0,
-                child: Container(
-                  margin: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                        color: AppColors.gray500.withValues(alpha: 0.2),
-                        blurRadius: 2,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                ),
+  List<Widget> _buildMealList({
+    required List<MealModel> meals,
+    required BuildContext context,
+  }) =>
+      List<Widget>.generate(
+        MealType.values.length,
+        (int index) {
+          if (meals.any(
+            (MealModel meal) => meal.mealType == MealType.values[index],
+          )) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: FoodCardWidget(
+                title: MealType.values[index].name,
+                foods: meals
+                    .firstWhere((MealModel meal) =>
+                        meal.mealType == MealType.values[index])
+                    .foods,
               ),
-            ),
-            // 텍스트 버튼
-            Row(
-              children: List<Widget>.generate(labels.length, (int index) {
-                final bool isSelected = index == selectedIndex;
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () => onTabChanged(index),
-                    behavior: HitTestBehavior.translucent,
-                    child: Container(
-                      height: double.infinity,
-                      alignment: Alignment.center,
-                      child: Text(
-                        labels[index],
-                        style: AppTextStyles.textSb16.copyWith(
-                          color: isSelected
-                              ? AppColors.gray900
-                              : AppColors.gray700,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ],
-        ),
+            );
+          } else {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: AddFoodCardWidget(
+                title: MealType.values[index].name,
+                onTap: () {
+                  context.pushNamed(Routes.recordFood.name);
+                },
+              ),
+            );
+          }
+        },
       );
 }

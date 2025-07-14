@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'routes/app_router.dart';
 import 'theme/app_colors.dart';
@@ -31,8 +31,19 @@ class MainApp extends ConsumerWidget {
           appBarTheme: const AppBarTheme(
             backgroundColor: AppColors.gray100,
             scrolledUnderElevation: 0,
+            centerTitle: true,
+          ),
+          bottomSheetTheme: const BottomSheetThemeData(
+            backgroundColor: AppColors.white,
           ),
           scaffoldBackgroundColor: AppColors.gray100,
+          snackBarTheme: SnackBarThemeData(
+            backgroundColor: AppColors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
           textSelectionTheme: TextSelectionThemeData(
             cursorColor: AppColors.deepMain,
             selectionHandleColor: AppColors.deepMain,

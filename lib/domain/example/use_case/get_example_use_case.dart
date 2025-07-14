@@ -8,7 +8,7 @@ import '../model/example_model.dart';
 
 final AutoDisposeProvider<GetExampleUseCase> getExampleUseCaseProvider =
     Provider.autoDispose<GetExampleUseCase>(
-  (AutoDisposeRef<GetExampleUseCase> ref) => GetExampleUseCase(
+  (Ref<GetExampleUseCase> ref) => GetExampleUseCase(
     exampleRepository: ref.read(exampleRepositoryProvider),
   ),
 );

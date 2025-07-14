@@ -1,37 +1,83 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/loading_status.dart';
+import '../../domain/meal/model/food_model.dart';
 
 class RecordFoodState extends Equatable {
   final LoadingStatus loadingStatus;
-  final List<String> foodCategories;
+  // 음식 추가 화면
+  final String selectedFoodCategory;
+  final List<FoodModel> foods;
+  // 카테고리 선택 바텀 시트
+  final String searchKeyword;
+  final List<String> allFoodCategories;
+  final List<String> searchedFoodCategories;
 
   const RecordFoodState({
     required this.loadingStatus,
-    required this.foodCategories,
+    required this.selectedFoodCategory,
+    required this.foods,
+    required this.searchKeyword,
+    required this.allFoodCategories,
+    required this.searchedFoodCategories,
   });
 
   const RecordFoodState.init()
       : loadingStatus = LoadingStatus.none,
-        foodCategories = const <String>[
-          '피자',
+        selectedFoodCategory = '',
+        foods = const <FoodModel>[],
+        searchKeyword = '',
+        allFoodCategories = const <String>[
           '치킨',
           '햄버거',
           '카페',
           '빵',
+          '피자',
+          '피자11',
+          '피자22',
+          '피자33',
+          '피자44',
+          '피자55',
+        ],
+        searchedFoodCategories = const <String>[
+          '치킨',
+          '햄버거',
+          '카페',
+          '빵',
+          '피자',
+          '피자11',
+          '피자22',
+          '피자33',
+          '피자44',
+          '피자55',
         ];
 
   RecordFoodState copyWith({
     LoadingStatus? loadingStatus,
-    List<String>? foodCategories,
+    String? selectedFoodCategory,
+    List<FoodModel>? foods,
+    String? searchKeyword,
+    List<String>? allFoodCategories,
+    List<String>? searchedFoodCategories,
   }) =>
       RecordFoodState(
         loadingStatus: loadingStatus ?? this.loadingStatus,
-        foodCategories: foodCategories ?? this.foodCategories,
+        selectedFoodCategory: selectedFoodCategory ?? this.selectedFoodCategory,
+        foods: foods ?? this.foods,
+        searchKeyword: searchKeyword ?? this.searchKeyword,
+        allFoodCategories: allFoodCategories ?? this.allFoodCategories,
+        searchedFoodCategories:
+            searchedFoodCategories ?? this.searchedFoodCategories,
       );
 
   @override
   List<Object> get props => <Object>[
         loadingStatus,
-        foodCategories,
+        selectedFoodCategory,
+        foods,
+        searchKeyword,
+        allFoodCategories,
+        searchedFoodCategories,
       ];
+
+  bool get canSave => foods.isNotEmpty;
 }
