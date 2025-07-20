@@ -1,37 +1,32 @@
 import 'package:equatable/equatable.dart';
-import '../../../../core/loading_status.dart';
+import '../../core/loading_status.dart';
 
 class LoginState extends Equatable {
-  final LoadingStatus loadingStatus;
-  final String example;
-  final int selectedTabIndex;
+  final LoadingStatus kakaoOauthLoadingStatus;
+  final bool needOnboarding;
 
   const LoginState({
-    required this.loadingStatus,
-    required this.example,
-    required this.selectedTabIndex,
+    required this.kakaoOauthLoadingStatus,
+    required this.needOnboarding,
   });
 
   const LoginState.init()
-      : loadingStatus = LoadingStatus.none,
-        example = '',
-        selectedTabIndex = 0;
+      : kakaoOauthLoadingStatus = LoadingStatus.none,
+        needOnboarding = false;
 
   LoginState copyWith({
-    LoadingStatus? loadingStatus,
-    String? example,
-    int? selectedTabIndex,
+    LoadingStatus? kakaoOauthLoadingStatus,
+    bool? needOnboarding,
   }) =>
       LoginState(
-        loadingStatus: loadingStatus ?? this.loadingStatus,
-        example: example ?? this.example,
-        selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
+        kakaoOauthLoadingStatus:
+            kakaoOauthLoadingStatus ?? this.kakaoOauthLoadingStatus,
+        needOnboarding: needOnboarding ?? this.needOnboarding,
       );
 
   @override
   List<Object> get props => <Object>[
-        loadingStatus,
-        example,
-        selectedTabIndex,
+        kakaoOauthLoadingStatus,
+        needOnboarding,
       ];
 }

@@ -1,20 +1,38 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'routes/app_router.dart';
+import 'service/supabase/supabase_service.dart';
 import 'theme/app_colors.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // .env 파일 로드
+  await dotenv.load();
+
   runApp(const ProviderScope(child: MainApp()));
 }
 
-class MainApp extends ConsumerWidget {
+class MainApp extends ConsumerStatefulWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => MaterialApp.router(
+  ConsumerState<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends ConsumerState<MainApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Supabase 초기화
+    ref.read(supabaseServiceProvider.notifier).initialize();
+  }
+
+  @override
+  Widget build(BuildContext context) => MaterialApp.router(
         routerConfig: ref.watch(appRouterProvider).router,
         title: 'damudna',
         locale: const Locale('ko', 'KR'),

@@ -45,5 +45,24 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>supabase-login</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.nikkinaekki.diet</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>kakao-login</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>kakao16d4af1d8c1fb56cf5cb8d5fedd6c612</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
