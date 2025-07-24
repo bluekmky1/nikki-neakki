@@ -49,3 +49,7 @@ app.*.map.json
 
 # Environment variables
 .env
+
+# mcp
+.mcp.json
+

@@ -10,6 +10,12 @@ class AppColors {
   static const Color sub = Color(0xFF26A69A);
   static const Color accent = Color(0xFFE0F7FA);
 
+  // red
+  static const Color red = Color(0xFFF44336);
+
+  // kakao
+  static const Color kakaoContainer = Color(0xFFFEE500);
+
   // static const Color darkChocolate = Color(0xFF2E2721);
 
   // heat

@@ -8,8 +8,8 @@ class Routes {
   );
 
   static const RouteInfo login = RouteInfo(
-    name: 'auth/login',
-    path: '/login',
+    name: '/auth/login',
+    path: 'login',
   );
 
   // 홈(메인)페이지
@@ -20,20 +20,26 @@ class Routes {
 
   // 음식 기록
   static const RouteInfo recordFood = RouteInfo(
-    name: '/record-food',
-    path: '/record-food',
+    name: '/record-food/:mealType',
+    path: '/record-food/:mealType',
   );
 
-  // 자주 먹는 음식들 관리
-  static const RouteInfo frequentlyEatenFoods = RouteInfo(
-    name: '/frequently-eaten-foods',
-    path: '/frequently-eaten-foods',
+  // 식사 검색
+  static const RouteInfo mealSearch = RouteInfo(
+    name: '/meal-search',
+    path: '/meal-search',
+  );
+
+  // 식사 상세
+  static const RouteInfo mealDetail = RouteInfo(
+    name: '/meal-detail/:mealId',
+    path: '/meal-detail/:mealId',
   );
 
   // 자주 먹는 음식들 관리 설정
-  static const RouteInfo frequentlyEatenFoodsSetting = RouteInfo(
-    name: '/frequently-eaten-foods/setting',
-    path: '/frequently-eaten-foods/setting',
+  static const RouteInfo foodsSetting = RouteInfo(
+    name: '/foods-setting',
+    path: '/foods-setting',
   );
 
   // 마이페이지

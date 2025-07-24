@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+
 import '../../domain/meal/model/food_model.dart';
 import 'record_food_state.dart';
 
@@ -44,7 +46,7 @@ class RecordFoodViewModel extends StateNotifier<RecordFoodState> {
         FoodModel(
           id: '',
           name: foodName,
-          category: state.selectedFoodCategory,
+          categoryName: state.selectedFoodCategory,
         ),
       ],
     );
@@ -58,5 +60,21 @@ class RecordFoodViewModel extends StateNotifier<RecordFoodState> {
     state = state.copyWith(
       foods: List<FoodModel>.from(state.foods)..removeAt(foodIndex),
     );
+  }
+
+  Future<void> pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      state = state.copyWith(pickedImage: image);
+    }
+  }
+
+  Future<void> pickImageFromCamera() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.camera);
+    if (image != null) {
+      state = state.copyWith(pickedImage: image);
+    }
   }
 }

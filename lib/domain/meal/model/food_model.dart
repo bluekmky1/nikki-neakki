@@ -2,12 +2,12 @@ import 'package:equatable/equatable.dart';
 
 class FoodModel extends Equatable {
   final String id;
-  final String category;
+  final String categoryName;
   final String name;
 
   const FoodModel({
     required this.id,
-    required this.category,
+    required this.categoryName,
     required this.name,
   });
 
@@ -22,7 +22,7 @@ class FoodModel extends Equatable {
   @override
   List<Object?> get props => <Object?>[
         id,
-        category,
+        categoryName,
         name,
       ];
 }

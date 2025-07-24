@@ -13,7 +13,8 @@ import '../common/widgets/tab/segmented_tab_widget.dart';
 import 'home_state.dart';
 import 'home_view_model.dart';
 import 'widgets/add_food_card_widget.dart';
-import 'widgets/food_card_widget.dart';
+import 'widgets/meal_card_widget.dart';
+import 'widgets/no_partner_widget.dart';
 import 'widgets/one_line_calendar_widget.dart';
 import 'widgets/summary_card_widget.dart';
 
@@ -29,10 +30,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget build(BuildContext context) {
     final HomeState state = ref.watch(homeViewModelProvider);
     final HomeViewModel viewModel = ref.read(homeViewModelProvider.notifier);
-    final bool isInDisplayWeek = !state.selectedDate
-            .isBefore(state.displayWeekStartDate) &&
-        !state.selectedDate
-            .isAfter(state.displayWeekStartDate.add(const Duration(days: 6)));
+
     return Scaffold(
       bottomNavigationBar: BottomNavigationBarWidget(
         currentRouteName: Routes.home.name,
@@ -42,7 +40,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           SliverAppBar(
             centerTitle: true,
             title: Text(
-              isInDisplayWeek
+              state.isInDisplayWeek
                   ? DateTimeFormatter.yearMonthFormat(state.selectedDate)
                   : DateTimeFormatter.yearMonthFormat(
                       state.displayWeekStartDate),
@@ -75,7 +73,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ),
           const SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 10),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: SummaryCardWidget(),
             ),
           ),
@@ -83,7 +81,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: SegmentedTabWidget(
-                tabTitles: const <String>['내 음식', '니 음식'],
+                selectedTabIndex: state.selectedTabIndex,
+                tabTitles: const <String>['내 끼니', '니 끼니'],
                 onTabChanged: (int index) {
                   viewModel.onTabChanged(index: index);
                 },
@@ -95,13 +94,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: <Widget>[
-                  const SizedBox(height: 8),
-                  ..._buildMealList(
-                    meals: state.selectedTabIndex == 0
-                        ? state.myMeals
-                        : state.otherMeals,
-                    context: context,
-                  ),
+                  if (state.hasPartner || state.selectedTabIndex == 0)
+                    ..._buildMealList(
+                      meals: state.selectedTabIndex == 0
+                          ? state.myMeals
+                          : state.otherMeals,
+                      context: context,
+                    )
+                  else
+                    const NoPartnerWidget(),
                   const SizedBox(height: 50),
                 ],
               ),
@@ -124,7 +125,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           )) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: FoodCardWidget(
+              child: MealCardWidget(
                 title: MealType.values[index].name,
                 foods: meals
                     .firstWhere((MealModel meal) =>
@@ -138,7 +139,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
               child: AddFoodCardWidget(
                 title: MealType.values[index].name,
                 onTap: () {
-                  context.pushNamed(Routes.recordFood.name);
+                  context.pushNamed(
+                    Routes.recordFood.name,
+                    pathParameters: <String, String>{
+                      'mealType': MealType.values[index].name,
+                    },
+                  );
                 },
               ),
             );

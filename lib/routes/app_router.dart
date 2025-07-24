@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../ui/frequently_eaten_foods/frequently_eaten_foods_view.dart';
-import '../ui/frequently_eaten_foods_setting/frequently_eaten_foods_setting_view.dart';
+
+import '../ui/foods_setting/foods_setting_view.dart';
 import '../ui/home/home_view.dart';
 import '../ui/login/login_view.dart';
+import '../ui/meal_detail/meal_detail_view.dart';
+import '../ui/meal_search/meal_search_view.dart';
 import '../ui/my/my_view.dart';
 import '../ui/record_food/record_food_view.dart';
 import 'app_router_interceptor.dart';
@@ -61,30 +63,41 @@ class AppRouter {
         name: Routes.recordFood.name,
         path: Routes.recordFood.path,
         pageBuilder: (BuildContext context, GoRouterState state) =>
-            const NoTransitionPage<dynamic>(
-          child: RecordFoodView(),
+            NoTransitionPage<dynamic>(
+          child: RecordFoodView(
+            mealType: state.pathParameters['mealType'] ?? '아침',
+          ),
         ),
       ),
 
       GoRoute(
-        name: Routes.frequentlyEatenFoods.name,
-        path: Routes.frequentlyEatenFoods.path,
+        name: Routes.mealSearch.name,
+        path: Routes.mealSearch.path,
         pageBuilder: (BuildContext context, GoRouterState state) =>
             const NoTransitionPage<dynamic>(
-          child: FrequentlyEatenFoodsView(),
+          child: MealSearchView(),
         ),
-        routes: <RouteBase>[
-          GoRoute(
-            name: Routes.frequentlyEatenFoodsSetting.name,
-            path: Routes.frequentlyEatenFoodsSetting.path,
-            pageBuilder: (BuildContext context, GoRouterState state) =>
-                const NoTransitionPage<dynamic>(
-              child: FrequentlyEatenFoodsSettingView(),
-            ),
-          ),
-        ],
       ),
 
+      GoRoute(
+        name: Routes.mealDetail.name,
+        path: Routes.mealDetail.path,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            NoTransitionPage<dynamic>(
+          child: MealDetailView(
+            mealId: state.pathParameters['mealId'] ?? '',
+          ),
+        ),
+      ),
+
+      GoRoute(
+        name: Routes.foodsSetting.name,
+        path: Routes.foodsSetting.path,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            const NoTransitionPage<dynamic>(
+          child: FoodsSettingView(),
+        ),
+      ),
       GoRoute(
         name: Routes.myPage.name,
         path: Routes.myPage.path,

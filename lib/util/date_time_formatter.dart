@@ -28,4 +28,7 @@ class DateTimeFormatter {
         return '';
     }
   }
+
+  static String fullDateTimeFormat(DateTime dateTime) =>
+      DateFormat('yyyy년 MM월 dd일 HH:mm').format(dateTime);
 }

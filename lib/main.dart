@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'routes/app_router.dart';
 import 'service/supabase/supabase_service.dart';
 import 'theme/app_colors.dart';
+import 'theme/app_text_styles.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +35,7 @@ class _MainAppState extends ConsumerState<MainApp> {
   @override
   Widget build(BuildContext context) => MaterialApp.router(
         routerConfig: ref.watch(appRouterProvider).router,
-        title: 'damudna',
+        title: '니끼내끼',
         locale: const Locale('ko', 'KR'),
         supportedLocales: const <Locale>[
           Locale('ko', 'KR'),
@@ -56,7 +57,10 @@ class _MainAppState extends ConsumerState<MainApp> {
           ),
           scaffoldBackgroundColor: AppColors.gray100,
           snackBarTheme: SnackBarThemeData(
-            backgroundColor: AppColors.white,
+            backgroundColor: AppColors.gray900,
+            contentTextStyle: AppTextStyles.textM16.copyWith(
+              color: AppColors.white,
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),

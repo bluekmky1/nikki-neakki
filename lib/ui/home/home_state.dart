@@ -1,63 +1,66 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/meal/model/food_model.dart';
+import '../../core/loading_status.dart';
 import '../../domain/meal/model/meal_model.dart';
-import '../common/consts/meal_type.dart';
 
 class HomeState extends Equatable {
-  final DateTime selectedDate;
-  final DateTime displayWeekStartDate;
-  final int selectedTabIndex;
+  // 데이터 로딩 상태
+  // 전체 식사 데이터 로딩 상태
+  final LoadingStatus getMealsLoadingStatus;
   final List<MealModel> myMeals;
   final List<MealModel> otherMeals;
 
+  // 선택 날짜
+  final DateTime selectedDate;
+  // 표시 주차 시작 날짜
+  final DateTime displayWeekStartDate;
+  // 선택 탭 인덱스
+  final int selectedTabIndex;
+  // 파트너 Id
+  final String partnerId;
+
   const HomeState({
+    required this.getMealsLoadingStatus,
     required this.selectedDate,
     required this.displayWeekStartDate,
     required this.selectedTabIndex,
+    required this.partnerId,
     required this.myMeals,
     required this.otherMeals,
   });
 
   HomeState.init()
-      : selectedDate = DateTime.now(),
+      : getMealsLoadingStatus = LoadingStatus.none,
+        selectedDate = DateTime.now(),
         displayWeekStartDate = DateTime.now(),
         selectedTabIndex = 0,
-        myMeals = <MealModel>[
-          MealModel(
-            id: '1',
-            thumbnailUrl: 'https://via.placeholder.com/150',
-            mealTime: DateTime.now(),
-            mealType: MealType.breakfast,
-            foods: const <FoodModel>[
-              FoodModel(
-                id: '1',
-                name: '알리알리올리숑',
-                category: '파스타',
-              ),
-            ],
-          ),
-        ],
+        partnerId = '',
+        myMeals = <MealModel>[],
         otherMeals = <MealModel>[];
 
   HomeState copyWith({
     DateTime? selectedDate,
     DateTime? displayWeekStartDate,
     int? selectedTabIndex,
+    String? partnerId,
     List<MealModel>? myMeals,
     List<MealModel>? otherMeals,
   }) =>
       HomeState(
+        getMealsLoadingStatus: getMealsLoadingStatus,
         selectedDate: selectedDate ?? this.selectedDate,
         displayWeekStartDate: displayWeekStartDate ?? this.displayWeekStartDate,
         selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
+        partnerId: partnerId ?? this.partnerId,
         myMeals: myMeals ?? this.myMeals,
         otherMeals: otherMeals ?? this.otherMeals,
       );
 
   @override
   List<Object> get props => <Object>[
+        getMealsLoadingStatus,
         selectedDate,
         selectedTabIndex,
+        partnerId,
         myMeals,
         otherMeals,
       ];
@@ -68,4 +71,10 @@ class HomeState extends Equatable {
         selectedDate.month == now.month &&
         selectedDate.day == now.day;
   }
+
+  bool get hasPartner => partnerId.isNotEmpty;
+
+  bool get isInDisplayWeek =>
+      !selectedDate.isBefore(displayWeekStartDate) &&
+      !selectedDate.isAfter(displayWeekStartDate.add(const Duration(days: 6)));
 }

@@ -52,13 +52,13 @@ class _BottomNavigationBarWidgetState
                   ),
                   Expanded(
                     child: _BottomNavigationBarItemWidget(
-                      label: '자주 먹는 음식',
-                      selectedIcon: Icons.restaurant,
-                      unselectedIcon: Icons.restaurant,
-                      isSelected: widget.currentRouteName ==
-                          Routes.frequentlyEatenFoods.name,
+                      label: '식사 검색',
+                      selectedIcon: Icons.search,
+                      unselectedIcon: Icons.search,
+                      isSelected:
+                          widget.currentRouteName == Routes.mealSearch.name,
                       onTap: () {
-                        context.goNamed(Routes.frequentlyEatenFoods.name);
+                        context.goNamed(Routes.mealSearch.name);
                       },
                     ),
                   ),

@@ -3,14 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_text_styles.dart';
-import '../../../home/home_state.dart';
-import '../../../home/home_view_model.dart';
 
 class SegmentedTabWidget extends ConsumerWidget {
+  final int selectedTabIndex;
   final Function(int) onTabChanged;
   final List<String> tabTitles;
 
   const SegmentedTabWidget({
+    required this.selectedTabIndex,
     required this.onTabChanged,
     required this.tabTitles,
     super.key,
@@ -18,7 +18,10 @@ class SegmentedTabWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final HomeState state = ref.watch(homeViewModelProvider);
+    final int tabCount = tabTitles.length;
+    final double alignmentX =
+        tabCount == 1 ? 0 : -1 + 2 * (selectedTabIndex / (tabCount - 1));
+    final double widthFactor = 1 / tabCount;
     return Container(
       height: 56,
       decoration: BoxDecoration(
@@ -29,13 +32,11 @@ class SegmentedTabWidget extends ConsumerWidget {
         children: <Widget>[
           // 움직이는 흰색 상자
           AnimatedAlign(
-            alignment: state.selectedTabIndex == 0
-                ? Alignment.centerLeft
-                : Alignment.centerRight,
+            alignment: Alignment(alignmentX, 0),
             duration: const Duration(milliseconds: 200),
             curve: Curves.ease,
             child: FractionallySizedBox(
-              widthFactor: 0.5,
+              widthFactor: widthFactor,
               heightFactor: 1.0,
               child: Container(
                 margin: const EdgeInsets.all(6),
@@ -44,7 +45,7 @@ class SegmentedTabWidget extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: <BoxShadow>[
                     BoxShadow(
-                      color: AppColors.gray500.withValues(alpha: 0.2),
+                      color: AppColors.gray500.withOpacity(0.2),
                       blurRadius: 2,
                       offset: const Offset(0, 4),
                     ),
@@ -55,8 +56,8 @@ class SegmentedTabWidget extends ConsumerWidget {
           ),
           // 텍스트 버튼
           Row(
-            children: List<Widget>.generate(2, (int index) {
-              final bool isSelected = index == state.selectedTabIndex;
+            children: List<Widget>.generate(tabTitles.length, (int index) {
+              final bool isSelected = index == selectedTabIndex;
               return Expanded(
                 child: GestureDetector(
                   onTap: () => onTabChanged(index),

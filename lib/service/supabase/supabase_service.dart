@@ -25,6 +25,21 @@ class SupabaseService extends StateNotifier<SupabaseState> {
       anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
       debug: true,
     );
+    try {
+      final UserResponse user = await supabaseClient.auth.getUser();
+      final String username = user.user?.userMetadata?['user_name'] ?? '';
+      print('username: $username');
+      state = state.copyWith(
+        isSignedIn: true,
+        userId: user.user?.id ?? '',
+        username: username,
+      );
+      state = state.copyWith(isSignedIn: user.user != null);
+    } on AuthException catch (e) {
+      if (kDebugMode) {
+        print('Supabase 초기화 실패: $e');
+      }
+    }
   }
 
   Future<void> signIn() async {
@@ -33,6 +48,7 @@ class SupabaseService extends StateNotifier<SupabaseState> {
       await supabaseClient.auth.signInWithOAuth(
         OAuthProvider.kakao,
         redirectTo: 'kakao16d4af1d8c1fb56cf5cb8d5fedd6c612://oauth',
+        authScreenLaunchMode: LaunchMode.externalApplication,
       );
 
       // auth state 변화를 감지하여 실제 로그인 성공 시에만 state 업데이트
@@ -41,13 +57,22 @@ class SupabaseService extends StateNotifier<SupabaseState> {
         final Session? session = data.session;
 
         if (event == AuthChangeEvent.signedIn && session != null) {
-          // 실제 로그인 성공 시에만 state 업데이트
-          state = state.copyWith(isSignedIn: true);
+          final User user = session.user;
+          final String username = user.userMetadata?['user_name'] ?? '';
+          state = state.copyWith(
+            isSignedIn: true,
+            userId: user.id,
+            username: username,
+          );
         }
       });
     } on AuthException catch (e) {
       if (kDebugMode) {
         print('OAuth 로그인 실패: $e');
+      }
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('OAuth 로그인 중 예상치 못한 에러: $e');
       }
     }
   }

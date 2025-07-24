@@ -21,11 +21,11 @@ class AddFoodCardWidget extends StatelessWidget {
           border: Border.all(
             color: AppColors.gray200,
           ),
-          boxShadow: <BoxShadow>[
+          boxShadow: const <BoxShadow>[
             BoxShadow(
-              color: AppColors.gray500.withValues(alpha: 0.2),
-              blurRadius: 2,
-              offset: const Offset(0, 4),
+              color: AppColors.gray200,
+              blurRadius: 10,
+              offset: Offset(0, 4),
             ),
           ],
         ),

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,11 +8,18 @@ import 'package:go_router/go_router.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../util/text_utils.dart';
+import '../common/widgets/button/bottom_sheet_row_button_widget.dart';
+import '../common/widgets/button/filled_text_button_widget.dart';
 import 'record_food_state.dart';
 import 'record_food_view_model.dart';
 
 class RecordFoodView extends ConsumerStatefulWidget {
-  const RecordFoodView({super.key});
+  const RecordFoodView({
+    required this.mealType,
+    super.key,
+  });
+
+  final String mealType;
 
   @override
   ConsumerState<RecordFoodView> createState() => _RecordFoodViewState();
@@ -30,7 +40,7 @@ class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
         slivers: <Widget>[
           SliverAppBar(
             title: Text(
-              '음식 기록',
+              '${widget.mealType} 기록',
               style: AppTextStyles.textSb22.copyWith(
                 color: AppColors.gray900,
               ),
@@ -38,26 +48,199 @@ class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
           ),
           SliverToBoxAdapter(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        '식사 시간 :',
+                        style: AppTextStyles.textSb18.copyWith(
+                          color: AppColors.gray900,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '오후 12:35',
+                        style: AppTextStyles.textR18.copyWith(
+                          color: AppColors.gray900,
+                        ),
+                      ),
+                      const Spacer(),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.deepMain,
+                          textStyle: AppTextStyles.textR18.copyWith(
+                            color: AppColors.deepMain,
+                          ),
+                        ),
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) => SafeArea(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Row(
+                                      children: <Widget>[
+                                        Text(
+                                          '식사 시간',
+                                          style:
+                                              AppTextStyles.textSb22.copyWith(
+                                            color: AppColors.gray900,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        const CloseButton(),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    SizedBox(
+                                      height: 200,
+                                      child: CupertinoTheme(
+                                        data: CupertinoThemeData(
+                                          textTheme: CupertinoTextThemeData(
+                                            dateTimePickerTextStyle:
+                                                AppTextStyles.textR16.copyWith(
+                                              fontSize: 28,
+                                              color: AppColors.gray900,
+                                            ),
+                                          ),
+                                        ),
+                                        child: CupertinoDatePicker(
+                                          initialDateTime:
+                                              DateTime(2025, 7, 21, 12),
+                                          selectionOverlayBuilder:
+                                              (BuildContext context,
+                                                      {required int columnCount,
+                                                      required int
+                                                          selectedIndex}) =>
+                                                  Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                            ),
+                                          ),
+                                          mode: CupertinoDatePickerMode.time,
+                                          onDateTimeChanged:
+                                              (DateTime dateTime) {},
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    TextButton(
+                                      onPressed: () {},
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: AppColors.main,
+                                        foregroundColor: AppColors.white,
+                                        textStyle:
+                                            AppTextStyles.textSb18.copyWith(
+                                          color: AppColors.white,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                      ),
+                                      child: const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          Text('설정'),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text('설정'),
+                      ),
+                    ],
+                  ),
+                ),
                 // 음식 이미지
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (BuildContext context) => SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              BottomSheetRowButtonWidget(
+                                title: '카메라',
+                                icon: Icons.camera_alt,
+                                onTap: () async {
+                                  await viewModel.pickImageFromCamera();
+                                },
+                              ),
+                              BottomSheetRowButtonWidget(
+                                title: '갤러리',
+                                icon: Icons.photo_library,
+                                onTap: () async {
+                                  await viewModel.pickImage();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                   child: Container(
                     width: double.infinity,
                     height: 200,
                     margin: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 16),
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.gray300,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.add_photo_alternate_outlined,
-                        size: 24,
-                        color: AppColors.gray600,
-                      ),
-                    ),
+                    child: state.pickedImage != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.file(
+                              File(state.pickedImage!.path),
+                              width: double.infinity,
+                              height: 200,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                const SizedBox(height: 8),
+                                const Icon(
+                                  Icons.add_photo_alternate_outlined,
+                                  size: 24,
+                                  color: AppColors.gray600,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  '사진 추가',
+                                  style: AppTextStyles.textR14.copyWith(
+                                    color: AppColors.gray600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                   ),
                 ),
                 // 음식 태그와 리스트 추가 버튼
@@ -213,7 +396,7 @@ class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
                       ),
                     ),
                     child: Text(
-                      state.foods[index].category,
+                      state.foods[index].categoryName,
                       style: AppTextStyles.textR14.copyWith(
                         color: AppColors.deepMain,
                       ),
@@ -250,33 +433,16 @@ class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            16,
+            16,
+            0,
           ),
-          child: TextButton(
-            onPressed: state.canSave ? () {} : null,
-            style: TextButton.styleFrom(
-              backgroundColor:
-                  state.canSave ? AppColors.main : AppColors.gray400,
-              foregroundColor:
-                  state.canSave ? AppColors.white : AppColors.gray600,
-              textStyle: AppTextStyles.textSb18.copyWith(
-                color: state.canSave ? AppColors.white : AppColors.gray600,
-              ),
-              padding: const EdgeInsets.symmetric(
-                vertical: 16,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text('저장'),
-              ],
-            ),
+          child: FilledTextButtonWidget(
+            title: '저장',
+            isEnabled: state.canSave,
+            onPressed: () {},
           ),
         ),
       ),
@@ -324,7 +490,7 @@ class _CategorySelectBottomSheetWidgetState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text(
-                '음식 카테고리 선택',
+                '음식 태그 추가',
                 style: AppTextStyles.textSb22.copyWith(
                   color: AppColors.gray900,
                 ),
@@ -357,7 +523,7 @@ class _CategorySelectBottomSheetWidgetState
                   },
                   maxLength: 10,
                   decoration: InputDecoration(
-                    hintText: '카테고리 검색',
+                    hintText: '태그 검색',
                     suffixIcon: IconButton(
                       onPressed: () {
                         viewModel.onSearchFoodCategory(
@@ -396,7 +562,7 @@ class _CategorySelectBottomSheetWidgetState
                         ),
                         TextSpan(
                           text:
-                              '''${TextUtils.getPostposition(state.searchKeyword)}\n검색된 카테고리가 없습니다.''',
+                              '''${TextUtils.getPostposition(state.searchKeyword)}\n검색된 태그가 없습니다.''',
                           style: AppTextStyles.textR16.copyWith(
                             color: AppColors.gray600,
                           ),
@@ -424,7 +590,7 @@ class _CategorySelectBottomSheetWidgetState
                       ),
                     ),
                     child: Text(
-                      '카테고리에 추가',
+                      '태그 추가하기',
                       style: AppTextStyles.textR14.copyWith(
                         color: AppColors.deepMain,
                       ),

@@ -1,4 +1,4 @@
-package com.example.damudna
+package com.nikkinaekki.diet
 
 import io.flutter.embedding.android.FlutterActivity
 

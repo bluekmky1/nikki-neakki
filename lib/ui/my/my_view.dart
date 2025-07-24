@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../routes/routes.dart';
+import '../../service/supabase/supabase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../common/widgets/bottom_navigation_bar_widget.dart';
-import '../common/widgets/tab/segmented_tab_widget.dart';
+import '../common/widgets/button/bottom_sheet_row_button_widget.dart';
+import 'my_view_model.dart';
+import 'widgets/meal_mate_section_widget.dart';
 
 class MyView extends ConsumerStatefulWidget {
   const MyView({super.key});
@@ -15,169 +20,146 @@ class MyView extends ConsumerStatefulWidget {
 }
 
 class _MyViewState extends ConsumerState<MyView> {
+  // 임시 상태 (나중에 상태관리로 대체)
+  bool isConnected = true; // true로 변경하면 연결된 상태 UI 확인 가능
+  String partnerNickname = '상대방닉네임';
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-        body: CustomScrollView(
-          slivers: <Widget>[
-            SliverAppBar(
-              toolbarHeight: 80,
-              centerTitle: false,
-              title: const Text(
-                '닉네임',
-                style: AppTextStyles.textB22,
-              ),
-              actions: <Widget>[
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.more_vert),
-                ),
-              ],
+  Widget build(BuildContext context) {
+    final String username = ref.watch(supabaseServiceProvider).username;
+
+    final MyViewModel viewModel = ref.watch(myViewModelProvider.notifier);
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: <Widget>[
+          SliverAppBar(
+            toolbarHeight: 80,
+            centerTitle: false,
+            title: Text(
+              username,
+              style: AppTextStyles.textB22,
             ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: const <BoxShadow>[
-                          BoxShadow(
-                            color: AppColors.gray200,
-                            blurRadius: 10,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
+            actions: <Widget>[
+              IconButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) => SafeArea(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            const Text(
-                              '식사하세요! 알림 설정',
-                              style: AppTextStyles.textB16,
-                            ),
-                            const SizedBox(height: 12),
-                            const Text(
-                              '알림 설정을 통해 식사 알림을 받을 수 있어요.',
-                              style: AppTextStyles.textR14,
-                            ),
-                            const SizedBox(height: 12),
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: AppColors.deepMain,
-                                foregroundColor: AppColors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                            BottomSheetRowButtonWidget(
+                                title: '로그아웃',
+                                icon: Icons.logout,
+                                color: AppColors.red,
+                                onTap: () {
+                                  context.pop();
+                                  viewModel.signOut();
+                                }),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.more_vert),
+              ),
+            ],
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: const <BoxShadow>[
+                        BoxShadow(
+                          color: AppColors.gray200,
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          const Text(
+                            '나의 밥 시간',
+                            style: AppTextStyles.textB16,
+                          ),
+                          const SizedBox(height: 12),
+                          MealHeatBar(frequency: mealFrequency),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  MealMateSectionWidget(
+                    isConnected: isConnected,
+                    partnerNickname: partnerNickname,
+                    coupleCode: 'ABC123',
+                    expiryDate: DateTime.now().add(const Duration(days: 7)),
+                    onCopyCode: () {
+                      // 클립보드 복사 로직
+                      Clipboard.setData(const ClipboardData(text: 'ABC123'));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          backgroundColor: AppColors.gray900,
+                          content: Text('코드가 복사되었습니다.'),
+                        ),
+                      );
+                    },
+                    onGenerateNewCode: () {
+                      // 새 코드 생성 로직
+                    },
+                    onEnterCode: () {
+                      // 코드 입력 다이얼로그 열기
+                    },
+                    onMore: () {
+                      // 더보기 다이얼로그
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) => SafeArea(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                BottomSheetRowButtonWidget(
+                                  icon: Icons.link_off,
+                                  title: '연결 해제',
+                                  color: AppColors.red,
+                                  onTap: () {
+                                    // 연결 해제 로직
+                                  },
                                 ),
-                              ),
-                              onPressed: () {},
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Text(
-                                    '알림 추가',
-                                    style: AppTextStyles.textM16,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Text(
-                        '음식 기록',
-                        style: AppTextStyles.textB20,
-                      ),
-                    ),
-                    SegmentedTabWidget(
-                      tabTitles: const <String>['나', '상대'],
-                      onTabChanged: (int index) {},
-                    ),
-                    const SizedBox(height: 16),
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: const <BoxShadow>[
-                          BoxShadow(
-                            color: AppColors.gray200,
-                            blurRadius: 10,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            const Text(
-                              '자주 식사하는 시간대',
-                              style: AppTextStyles.textB16,
-                            ),
-                            const SizedBox(height: 12),
-                            MealHeatBar(frequency: mealFrequency),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: const <BoxShadow>[
-                          BoxShadow(
-                            color: AppColors.gray200,
-                            blurRadius: 10,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              '자주 먹는 음식 순위',
-                              style: AppTextStyles.textB16,
-                            ),
-                            Row(
-                              children: <Widget>[
-                                SizedBox(height: 12),
                               ],
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text('1. 피자'),
-                                Text('2. 치킨'),
-                                Text('3. 햄버거'),
-                              ],
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ),
             ),
-          ],
-        ),
-        bottomNavigationBar: BottomNavigationBarWidget(
-          currentRouteName: Routes.myPage.name,
-        ),
-      );
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBarWidget(
+        currentRouteName: Routes.myPage.name,
+      ),
+    );
+  }
 }
 
 class MealHeatBar extends StatelessWidget {

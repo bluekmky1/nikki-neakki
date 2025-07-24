@@ -51,141 +51,148 @@ class _MealTimelineBarState extends State<MealTimelineBar>
     const double dotRadius = 24;
     final TimeOfDay now = TimeOfDay.now();
     final double nowFraction = _timeToFraction(now);
+    const double marginHorizontal = 56;
 
     return SizedBox(
       // 높이 조절 (타임라인 높이 + 시간 라벨 높이)
       height: barTop + barHeight + 65,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 56),
-          child: SizedBox(
-            width: timelineWidth,
-            child: Stack(
-              children: <Widget>[
-                // 1. 전체 타임라인(연한 회색, 두꺼운 막대)
-                Positioned(
-                  left: 0,
-                  top: barTop,
-                  width: timelineWidth,
-                  height: barHeight,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.gray200,
-                      borderRadius: BorderRadius.circular(barHeight / 2),
-                    ),
+        child: SizedBox(
+          width: timelineWidth,
+          child: Stack(
+            children: <Widget>[
+              // 1. 전체 타임라인(연한 회색, 두꺼운 막대)
+              Positioned(
+                left: 0,
+                top: barTop,
+                width: timelineWidth,
+                height: barHeight,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 56),
+                  decoration: BoxDecoration(
+                    color: AppColors.gray200,
+                    borderRadius: BorderRadius.circular(barHeight / 2),
                   ),
                 ),
-                // 2. 지나간 시간(메인 컬러로 채움)
-                Positioned(
-                  left: 0,
-                  top: barTop,
-                  width: timelineWidth,
-                  height: barHeight,
-                  child: Container(
-                    clipBehavior: Clip.hardEdge,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(barHeight / 2),
-                    ),
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                          width: timelineWidth * nowFraction,
+              ),
+              // 2. 지나간 시간(메인 컬러로 채움)
+              Positioned(
+                left: 0,
+                top: barTop,
+                width: timelineWidth,
+                height: barHeight,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 56),
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(barHeight / 2),
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        width: timelineWidth * nowFraction,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: <Color>[
+                              AppColors.main.withValues(alpha: 0.2),
+                              AppColors.main,
+                              AppColors.sub
+                            ],
+                          ),
+                          borderRadius: BorderRadius.horizontal(
+                            left: const Radius.circular(barHeight / 2),
+                            right: nowFraction == 1.0
+                                ? const Radius.circular(barHeight / 2)
+                                : Radius.zero,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // 식사 위치 점 + 시간
+              ...widget.myMeals.map(
+                (MealModel meal) {
+                  final double fraction =
+                      _timeToFraction(TimeOfDay.fromDateTime(meal.mealTime));
+                  final double left =
+                      (marginHorizontal + fraction * timelineWidth - dotRadius)
+                          .clamp(marginHorizontal - dotRadius,
+                              marginHorizontal + timelineWidth - dotRadius);
+                  return Stack(
+                    children: <Widget>[
+                      // 나
+                      Positioned(
+                        left: left,
+                        top: barTop - dotRadius,
+                        child: Container(
+                          width: dotRadius * 2,
+                          height: dotRadius * 2,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: <Color>[
-                                AppColors.main.withValues(alpha: 0.2),
-                                AppColors.main,
-                                AppColors.sub
-                              ],
-                            ),
-                            borderRadius: BorderRadius.horizontal(
-                              left: const Radius.circular(barHeight / 2),
-                              right: nowFraction == 1.0
-                                  ? const Radius.circular(barHeight / 2)
-                                  : Radius.zero,
-                            ),
+                            color: AppColors.deepMain,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // 식사 위치 점 + 시간
-                ...widget.myMeals.map(
-                  (MealModel meal) {
-                    final double fraction =
-                        _timeToFraction(TimeOfDay.fromDateTime(meal.mealTime));
-                    final double left = fraction * timelineWidth;
-                    return Stack(
-                      children: <Widget>[
-                        // 나
-                        Positioned(
-                          left: left - dotRadius,
-                          top: barTop - dotRadius,
-                          child: Container(
-                            width: dotRadius * 2,
-                            height: dotRadius * 2,
-                            decoration: BoxDecoration(
-                              color: AppColors.deepMain,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                            child: Center(
-                              child: Text(
-                                meal.mealType.name,
-                                style: AppTextStyles.textR12.copyWith(
-                                  color: AppColors.white,
-                                ),
+                          child: Center(
+                            child: Text(
+                              meal.mealType.name,
+                              style: AppTextStyles.textR12.copyWith(
+                                color: AppColors.white,
                               ),
                             ),
                           ),
                         ),
-                        // 상대
-                      ],
-                    );
-                  },
-                ),
+                      ),
+                      // 상대
+                    ],
+                  );
+                },
+              ),
 
-                ...widget.otherMeals.map(
-                  (MealModel meal) {
-                    final double fraction =
-                        _timeToFraction(TimeOfDay.fromDateTime(meal.mealTime));
-                    final double left = fraction * timelineWidth;
-                    return Stack(
-                      children: <Widget>[
-                        // 나
-                        Positioned(
-                          left: left - dotRadius,
-                          top: barTop + dotRadius,
-                          child: Container(
-                            width: dotRadius * 2,
-                            height: dotRadius * 2,
-                            decoration: BoxDecoration(
-                              color: AppColors.sub,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                            child: Center(
-                              child: Text(
-                                meal.mealType.name,
-                                style: AppTextStyles.textR12.copyWith(
-                                  color: AppColors.white,
-                                ),
+              ...widget.otherMeals.map(
+                (MealModel meal) {
+                  final double fraction =
+                      _timeToFraction(TimeOfDay.fromDateTime(meal.mealTime));
+                  final double left = (fraction * timelineWidth - dotRadius)
+                      .clamp(0.0, timelineWidth - dotRadius * 2);
+                  return Stack(
+                    children: <Widget>[
+                      // 나
+                      Positioned(
+                        left: left,
+                        top: barTop + dotRadius,
+                        child: Container(
+                          width: dotRadius * 2,
+                          height: dotRadius * 2,
+                          decoration: BoxDecoration(
+                            color: AppColors.sub,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: Center(
+                            child: Text(
+                              meal.mealType.name,
+                              style: AppTextStyles.textR12.copyWith(
+                                color: AppColors.white,
                               ),
                             ),
                           ),
                         ),
-                        // 상대
-                      ],
-                    );
-                  },
-                ),
-                // 시간 라벨 (0, 6, 12, 18, 24)
-                Positioned(
-                  left: 0,
-                  top: barTop + barHeight + 48,
-                  width: timelineWidth,
+                      ),
+                      // 상대
+                    ],
+                  );
+                },
+              ),
+              // 시간 라벨 (0, 6, 12, 18, 24)
+              Positioned(
+                left: 0,
+                top: barTop + barHeight + 48,
+                width: timelineWidth,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 56),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: List<Widget>.generate(
@@ -204,8 +211,8 @@ class _MealTimelineBarState extends State<MealTimelineBar>
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

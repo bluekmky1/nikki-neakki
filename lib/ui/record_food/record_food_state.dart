@@ -1,4 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:image_picker/image_picker.dart';
+
 import '../../../../core/loading_status.dart';
 import '../../domain/meal/model/food_model.dart';
 
@@ -11,6 +13,7 @@ class RecordFoodState extends Equatable {
   final String searchKeyword;
   final List<String> allFoodCategories;
   final List<String> searchedFoodCategories;
+  final XFile? pickedImage;
 
   const RecordFoodState({
     required this.loadingStatus,
@@ -19,6 +22,7 @@ class RecordFoodState extends Equatable {
     required this.searchKeyword,
     required this.allFoodCategories,
     required this.searchedFoodCategories,
+    required this.pickedImage,
   });
 
   const RecordFoodState.init()
@@ -49,7 +53,8 @@ class RecordFoodState extends Equatable {
           '피자33',
           '피자44',
           '피자55',
-        ];
+        ],
+        pickedImage = null;
 
   RecordFoodState copyWith({
     LoadingStatus? loadingStatus,
@@ -58,6 +63,7 @@ class RecordFoodState extends Equatable {
     String? searchKeyword,
     List<String>? allFoodCategories,
     List<String>? searchedFoodCategories,
+    XFile? pickedImage,
   }) =>
       RecordFoodState(
         loadingStatus: loadingStatus ?? this.loadingStatus,
@@ -67,16 +73,18 @@ class RecordFoodState extends Equatable {
         allFoodCategories: allFoodCategories ?? this.allFoodCategories,
         searchedFoodCategories:
             searchedFoodCategories ?? this.searchedFoodCategories,
+        pickedImage: pickedImage ?? this.pickedImage,
       );
 
   @override
-  List<Object> get props => <Object>[
+  List<Object?> get props => <Object?>[
         loadingStatus,
         selectedFoodCategory,
         foods,
         searchKeyword,
         allFoodCategories,
         searchedFoodCategories,
+        pickedImage,
       ];
 
   bool get canSave => foods.isNotEmpty;
