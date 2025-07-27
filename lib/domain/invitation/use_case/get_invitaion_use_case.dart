@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/common/repository/repository_result.dart';
 import '../../../core/common/use_case/use_case_result.dart';
-import '../../../data/invitation/invitation_repository.dart';
 import '../../../data/invitation/entity/invitation_entity.dart';
+import '../../../data/invitation/invitation_repository.dart';
 import '../../../ui/common/consts/invitation_status.dart';
 import '../model/invitation_model.dart';
 

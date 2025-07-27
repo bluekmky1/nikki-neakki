@@ -18,6 +18,8 @@ class HomeState extends Equatable {
   final int selectedTabIndex;
   // 파트너 Id
   final String partnerId;
+  // 점프 여부 (애니메이션 없이 즉시 이동)
+  final bool shouldJump;
 
   const HomeState({
     required this.getMyMealsLoadingStatus,
@@ -28,6 +30,7 @@ class HomeState extends Equatable {
     required this.partnerId,
     required this.myMeals,
     required this.otherMeals,
+    required this.shouldJump,
   });
 
   HomeState.init()
@@ -38,7 +41,8 @@ class HomeState extends Equatable {
         selectedTabIndex = 0,
         partnerId = '',
         myMeals = <MealModel>[],
-        otherMeals = <MealModel>[];
+        otherMeals = <MealModel>[],
+        shouldJump = false;
 
   HomeState copyWith({
     LoadingStatus? getMyMealsLoadingStatus,
@@ -49,6 +53,7 @@ class HomeState extends Equatable {
     String? partnerId,
     List<MealModel>? myMeals,
     List<MealModel>? otherMeals,
+    bool? shouldJump,
   }) =>
       HomeState(
         getMyMealsLoadingStatus:
@@ -61,6 +66,7 @@ class HomeState extends Equatable {
         partnerId: partnerId ?? this.partnerId,
         myMeals: myMeals ?? this.myMeals,
         otherMeals: otherMeals ?? this.otherMeals,
+        shouldJump: shouldJump ?? this.shouldJump,
       );
 
   @override
@@ -72,6 +78,7 @@ class HomeState extends Equatable {
         partnerId,
         myMeals,
         otherMeals,
+        shouldJump,
       ];
 
   bool get isToday {

@@ -7,13 +7,11 @@ class FoodCategoryEntity {
   final String id;
   final String name;
   final DateTime createdAt;
-  final DateTime? updatedAt;
 
   const FoodCategoryEntity({
     required this.id,
     required this.name,
     required this.createdAt,
-    this.updatedAt,
   });
 
   factory FoodCategoryEntity.fromJson(Map<String, dynamic> json) =>

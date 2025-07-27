@@ -22,7 +22,6 @@ class MealModel extends Equatable {
 
   factory MealModel.fromEntity({
     required MealEntity entity,
-    Map<String, String>? categoryNames,
   }) =>
       MealModel(
         id: entity.id,
@@ -34,7 +33,6 @@ class MealModel extends Equatable {
           entity.foods.length,
           (int index) => FoodModel.fromEntity(
             entity: entity.foods[index],
-            categoryNames: categoryNames,
           ),
         ),
       );

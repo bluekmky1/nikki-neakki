@@ -255,7 +255,7 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                                   child: Row(
                                     children: <Widget>[
                                       FoodChipWidget(
-                                        title: food.categoryName,
+                                        title: food.name,
                                       ),
                                       const SizedBox(width: 12),
                                       Expanded(

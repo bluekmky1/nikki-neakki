@@ -35,31 +35,12 @@ class MealSearchState extends Equatable {
               FoodModel(
                 id: '1',
                 name: '식사1',
-                categoryName: '카테고리1',
+                categoryId: '1',
               ),
               FoodModel(
                 id: '1',
                 name: '식사1',
-                categoryName: '카테고리1',
-              ),
-            ],
-          ),
-          MealModel(
-            id: '1',
-            imageUrl: 'https://via.placeholder.com/150',
-            userId: '1',
-            mealTime: DateTime.now(),
-            mealType: MealType.breakfast,
-            foods: const <FoodModel>[
-              FoodModel(
-                id: '1',
-                name: '식사1',
-                categoryName: '카테고리1',
-              ),
-              FoodModel(
-                id: '1',
-                name: '식사1',
-                categoryName: '카테고리1',
+                categoryId: '1',
               ),
             ],
           ),
@@ -73,12 +54,31 @@ class MealSearchState extends Equatable {
               FoodModel(
                 id: '1',
                 name: '식사1',
-                categoryName: '카테고리1',
+                categoryId: '1',
               ),
               FoodModel(
                 id: '1',
                 name: '식사1',
-                categoryName: '카테고리1',
+                categoryId: '1',
+              ),
+            ],
+          ),
+          MealModel(
+            id: '1',
+            imageUrl: 'https://via.placeholder.com/150',
+            userId: '1',
+            mealTime: DateTime.now(),
+            mealType: MealType.breakfast,
+            foods: const <FoodModel>[
+              FoodModel(
+                id: '1',
+                name: '식사1',
+                categoryId: '1',
+              ),
+              FoodModel(
+                id: '1',
+                name: '식사1',
+                categoryId: '1',
               ),
             ],
           ),
@@ -96,12 +96,12 @@ class MealSearchState extends Equatable {
               FoodModel(
                 id: '1',
                 name: '식사1',
-                categoryName: '카테고리1',
+                categoryId: '1',
               ),
               FoodModel(
                 id: '1',
                 name: '식사1',
-                categoryName: '카테고리1',
+                categoryId: '1',
               ),
             ],
           ),

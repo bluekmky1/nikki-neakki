@@ -1,7 +1,8 @@
 enum MealType {
   breakfast(name: '아침'),
   lunch(name: '점심'),
-  dinner(name: '저녁');
+  dinner(name: '저녁'),
+  none(name: '없음');
 
   final String name;
 
@@ -16,7 +17,7 @@ enum MealType {
       case 'dinner':
         return MealType.dinner;
       default:
-        throw ArgumentError('Unknown meal type: $value');
+        return MealType.none;
     }
   }
 }

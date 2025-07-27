@@ -51,6 +51,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 }
               });
             },
+            onTodayTap: () {
+              viewModel.jumpToDate(date: DateTime.now());
+            },
           ),
           const SliverToBoxAdapter(
             child: Padding(

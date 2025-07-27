@@ -1,10 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../domain/meal/model/food_model.dart';
 import '../../service/supabase/supabase_service.dart';
-import 'entity/food_entity.dart';
+import '../../ui/common/consts/meal_type.dart';
 import 'entity/meal_entity.dart';
-import 'response_body/get_meals_with_category_names_response_body.dart';
 
 final Provider<MealRemoteDataSource> mealRemoteDataSourceProvider =
     Provider<MealRemoteDataSource>(
@@ -41,7 +42,7 @@ class MealRemoteDataSource {
     );
   }
 
-  Future<GetMealsWithCategoryNamesResponseBody> getMealsWithCategoryNames({
+  Future<List<MealEntity>> getMeals({
     required String userId,
     required DateTime date,
   }) async {
@@ -87,22 +88,39 @@ class MealRemoteDataSource {
     final List<MealEntity> meals =
         mealsWithFoods.map(MealEntity.fromJson).toList();
 
-    // 4. 카테고리 ID 추출
-    final List<String> categoryIds = meals
-        .expand((MealEntity meal) => meal.foods)
-        .map((FoodEntity food) => food.categoryId)
-        .toSet()
-        .toList();
+    return meals;
+  }
 
-    // 5. 카테고리 이름들 가져오기
-    final Map<String, String> categoryNames = await getFoodCategoryNames(
-      categoryIds: categoryIds,
-      userId: userId,
-    );
+  Future<void> createMeal({
+    required String userId,
+    required DateTime mealTime,
+    required MealType mealType,
+    required XFile image,
+    required List<FoodModel> foods,
+  }) async {
+    final String imageUrl = await _supabaseService.uploadImage(image);
 
-    return GetMealsWithCategoryNamesResponseBody(
-      meals: meals,
-      categoryNames: categoryNames,
-    );
+    final PostgrestList response = await _supabaseService.supabaseClient
+        .from('meal')
+        .insert(<String, dynamic>{
+      'user_id': userId,
+      'meal_time': mealTime.toIso8601String(),
+      'image_url': imageUrl,
+      'meal_type': mealType.name,
+      'created_at': DateTime.now().toIso8601String(),
+    });
+
+    final String mealId = response.first['id'] as String;
+
+    for (final FoodModel food in foods) {
+      await _supabaseService.supabaseClient
+          .from('meal_food')
+          .insert(<String, dynamic>{
+        'category_id': food.categoryId,
+        'user_id': userId,
+        'meal_id': mealId,
+        'food_note': food.name,
+      });
+    }
   }
 }

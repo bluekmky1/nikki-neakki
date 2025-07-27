@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../domain/food_category/model/food_category_model.dart';
 import '../../../domain/meal/model/food_model.dart';
 import '../../../domain/meal/model/meal_model.dart';
 import '../../../theme/app_colors.dart';
@@ -11,10 +12,12 @@ import '../../common/widgets/card/base_card_widget.dart';
 class MealCardWidget extends StatefulWidget {
   const MealCardWidget({
     required this.meal,
+    required this.categoryNames,
     super.key,
   });
 
   final MealModel meal;
+  final List<FoodCategoryModel> categoryNames;
 
   @override
   State<MealCardWidget> createState() => _MealCardWidgetState();
@@ -109,7 +112,12 @@ class _MealCardWidgetState extends State<MealCardWidget> {
                     ),
                   ),
                   child: Text(
-                    widget.meal.foods.first.categoryName,
+                    widget.categoryNames
+                        .firstWhere(
+                          (FoodCategoryModel category) =>
+                              category.id == widget.meal.foods.first.categoryId,
+                        )
+                        .name,
                     style: AppTextStyles.textSb14.copyWith(
                       color: AppColors.deepMain,
                     ),
@@ -163,7 +171,14 @@ class _MealCardWidgetState extends State<MealCardWidget> {
                             (FoodModel food) => Padding(
                               padding: const EdgeInsets.only(top: 8),
                               child: _buildAdditionalMenuRow(
-                                  food.categoryName, food.name),
+                                widget.categoryNames
+                                    .firstWhere(
+                                      (FoodCategoryModel category) =>
+                                          category.id == food.categoryId,
+                                    )
+                                    .name,
+                                food.name,
+                              ),
                             ),
                           )
                           .toList(),

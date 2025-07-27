@@ -28,9 +28,9 @@ class MealDetailViewModel extends StateNotifier<MealDetailState> {
       mealTime: DateTime.now(),
       mealType: MealType.lunch,
       foods: const <FoodModel>[
-        FoodModel(id: '1', name: '김치볶음밥', categoryName: '한식'),
-        FoodModel(id: '2', name: '계란후라이', categoryName: '반찬'),
-        FoodModel(id: '3', name: '미소된장국', categoryName: '국물'),
+        FoodModel(id: '1', name: '김치볶음밥', categoryId: '1'),
+        FoodModel(id: '2', name: '계란후라이', categoryId: '2'),
+        FoodModel(id: '3', name: '미소된장국', categoryId: '3'),
       ],
     );
 

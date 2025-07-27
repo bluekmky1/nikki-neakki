@@ -9,6 +9,7 @@ class CalendarHeaderWidget extends StatelessWidget {
   final DateTime selectedDate;
   final DateTime displayWeekStartDate;
   final VoidCallback? onCalendarTap;
+  final VoidCallback? onTodayTap;
 
   const CalendarHeaderWidget({
     required this.isInDisplayWeek,
@@ -16,11 +17,12 @@ class CalendarHeaderWidget extends StatelessWidget {
     required this.displayWeekStartDate,
     super.key,
     this.onCalendarTap,
+    this.onTodayTap,
   });
 
   @override
   Widget build(BuildContext context) => SliverAppBar(
-        centerTitle: true,
+        centerTitle: false,
         title: Text(
           isInDisplayWeek
               ? DateTimeFormatter.yearMonthFormat(selectedDate)
@@ -30,12 +32,24 @@ class CalendarHeaderWidget extends StatelessWidget {
           ),
         ),
         actions: <Widget>[
+          TextButton(
+            onPressed: onTodayTap,
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.gray600,
+            ),
+            child: Text(
+              '오늘',
+              style: AppTextStyles.textM16.copyWith(
+                color: AppColors.gray900,
+              ),
+            ),
+          ),
           IconButton(
             onPressed: onCalendarTap,
             style: IconButton.styleFrom(
               foregroundColor: AppColors.gray900,
             ),
-            icon: const Icon(Icons.today_rounded),
+            icon: const Icon(Icons.event),
           ),
         ],
       );

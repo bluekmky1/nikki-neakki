@@ -72,7 +72,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
     // 선택된 날짜가 속한 주의 월요일을 계산하여 displayWeekStartDate 업데이트
     final DateTime monday =
         date.subtract(Duration(days: (date.weekday + 6) % 7));
-    state = state.copyWith(displayWeekStartDate: monday);
+    state = state.copyWith(displayWeekStartDate: monday, shouldJump: true);
 
     getMyMealList(date: date);
   }
@@ -83,5 +83,9 @@ class HomeViewModel extends StateNotifier<HomeState> {
 
   void onTabChanged({required int index}) {
     state = state.copyWith(selectedTabIndex: index);
+  }
+
+  void resetJumpFlag() {
+    state = state.copyWith(shouldJump: false);
   }
 }

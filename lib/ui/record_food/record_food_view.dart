@@ -4,13 +4,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../util/date_time_formatter.dart';
 import '../../util/text_utils.dart';
 import '../common/widgets/button/filled_text_button_widget.dart';
-import '../common/widgets/input/image_picker_widget.dart';
 import 'record_food_state.dart';
 import 'record_food_view_model.dart';
 import 'widgets/food_input_section_widget.dart';
 import 'widgets/food_list_section_widget.dart';
+import 'widgets/image_picker_widget.dart';
 import 'widgets/meal_time_section_widget.dart';
 
 class RecordFoodView extends ConsumerStatefulWidget {
@@ -30,10 +31,20 @@ class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
       TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(recordFoodViewModelProvider.notifier)
+          .init(mealType: widget.mealType);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final RecordFoodState state = ref.watch(recordFoodViewModelProvider);
     final RecordFoodViewModel viewModel =
-        ref.watch(recordFoodViewModelProvider.notifier);
+        ref.read(recordFoodViewModelProvider.notifier);
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: CustomScrollView(
@@ -51,20 +62,43 @@ class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 MealTimeSectionWidget(
-                  mealTime: '오후 12:35',
-                  onTimeSettingTap: () {},
+                  mealTime: DateTimeFormatter.timeFormatWithAmPm(
+                    state.initialMealTime,
+                  ),
+                  initialDateTime: state.initialMealTime,
+                  onTimeSettingTap: () {
+                    viewModel.onConfirmMealTime(
+                      mealTime: ref.read(recordFoodViewModelProvider).mealTime,
+                    );
+                    context.pop();
+                  },
+                  onTimeChanged: (DateTime dateTime) {
+                    viewModel.onChangeMealTime(mealTime: dateTime);
+                  },
                 ),
                 ImagePickerWidget(
                   pickedImage: state.pickedImage,
                   onCameraTap: () async {
                     await viewModel.pickImageFromCamera();
+                    if (context.mounted) {
+                      context.pop();
+                    }
                   },
                   onGalleryTap: () async {
                     await viewModel.pickImage();
+                    if (context.mounted) {
+                      context.pop();
+                    }
+                  },
+                  onDeleteTap: () {
+                    viewModel.deleteImage();
+                    if (context.mounted) {
+                      context.pop();
+                    }
                   },
                 ),
                 FoodInputSectionWidget(
-                  selectedFoodCategory: state.selectedFoodCategory,
+                  selectedFoodCategory: state.selectedFoodCategoryName,
                   foodNameController: _editingFoodNameController,
                   onCategoryTap: () {
                     showModalBottomSheet(
@@ -77,7 +111,7 @@ class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
                     );
                   },
                   onAddFoodTap: () {
-                    if (state.selectedFoodCategory.isEmpty) {
+                    if (state.selectedFoodCategoryId.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           padding: const EdgeInsets.symmetric(
@@ -255,32 +289,43 @@ class _CategorySelectBottomSheetWidgetState
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text.rich(
-                    TextSpan(
-                      children: <InlineSpan>[
-                        TextSpan(
-                          text: state.searchKeyword,
-                          style: AppTextStyles.textR16.copyWith(
-                            color: AppColors.deepMain,
+                  if (state.searchKeyword.trim().isNotEmpty)
+                    Text.rich(
+                      TextSpan(
+                        children: <InlineSpan>[
+                          TextSpan(
+                            text: state.searchKeyword,
+                            style: AppTextStyles.textR16.copyWith(
+                              color: AppColors.deepMain,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text:
-                              '''${TextUtils.getPostposition(state.searchKeyword)}\n검색된 태그가 없습니다.''',
-                          style: AppTextStyles.textR16.copyWith(
-                            color: AppColors.gray600,
+                          TextSpan(
+                            text:
+                                '''${TextUtils.getPostposition(state.searchKeyword)}\n검색된 태그가 없습니다.''',
+                            style: AppTextStyles.textR16.copyWith(
+                              color: AppColors.gray600,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.textR14.copyWith(
+                        color: AppColors.gray600,
+                      ),
+                    )
+                  else
+                    Text(
+                      '등록된 태그가 없습니다.',
+                      style: AppTextStyles.textR16.copyWith(
+                        color: AppColors.gray600,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.textR14.copyWith(
-                      color: AppColors.gray600,
-                    ),
-                  ),
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () {
+                      if (state.searchKeyword.trim().isEmpty) {
+                        return;
+                      }
                       viewModel.addToCategory(
                         category: state.searchKeyword,
                       );
@@ -326,13 +371,15 @@ class _CategorySelectBottomSheetWidgetState
                       ),
                       onPressed: () {
                         viewModel.onSelectFoodCategory(
-                          category: state.searchedFoodCategories[index],
+                          categoryId: state.searchedFoodCategories[index].id,
+                          categoryName:
+                              state.searchedFoodCategories[index].name,
                         );
                         context.pop();
                       },
                       child: Row(
                         children: <Widget>[
-                          Text(state.searchedFoodCategories[index]),
+                          Text(state.searchedFoodCategories[index].name),
                         ],
                       ),
                     ),

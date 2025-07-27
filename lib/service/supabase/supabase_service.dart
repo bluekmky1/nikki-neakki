@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'supabase_state.dart';
@@ -82,4 +84,29 @@ class SupabaseService extends StateNotifier<SupabaseState> {
   }
 
   SupabaseClient get supabaseClient => Supabase.instance.client;
+
+  // 이미지 업로드 함수
+  Future<String> uploadImage(XFile image) async {
+    try {
+      final File file = File(image.path);
+      final String fileName = 
+          '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
+      final String filePath = 'meal_images/$fileName';
+
+      await supabaseClient.storage
+          .from('meal-images')
+          .upload(filePath, file);
+
+      final String imageUrl = supabaseClient.storage
+          .from('meal-images')
+          .getPublicUrl(filePath);
+
+      return imageUrl;
+    } catch (e) {
+      if (kDebugMode) {
+        print('이미지 업로드 실패: $e');
+      }
+      rethrow;
+    }
+  }
 }

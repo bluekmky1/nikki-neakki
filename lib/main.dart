@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'routes/app_router.dart';
+import 'service/category/category_service.dart';
 import 'service/meal_mate/meal_mate_service.dart';
 import 'service/supabase/supabase_service.dart';
 import 'service/supabase/supabase_state.dart';
@@ -42,6 +43,10 @@ class _MainAppState extends ConsumerState<MainApp> {
         (bool? previous, bool next) async {
       if (next) {
         await ref.read(mealMateServiceProvider.notifier).getMealMate();
+        await ref.read(categoryServiceProvider.notifier).getMyFoodCategories();
+        await ref
+            .read(categoryServiceProvider.notifier)
+            .getPartnerFoodCategories();
       }
     });
     return MaterialApp.router(

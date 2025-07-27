@@ -6,10 +6,14 @@ import '../../../theme/app_text_styles.dart';
 
 class MealTimeSectionWidget extends StatelessWidget {
   final String mealTime;
+  final DateTime initialDateTime;
   final VoidCallback? onTimeSettingTap;
+  final void Function(DateTime) onTimeChanged;
 
   const MealTimeSectionWidget({
     required this.mealTime,
+    required this.initialDateTime,
+    required this.onTimeChanged,
     super.key,
     this.onTimeSettingTap,
   });
@@ -76,7 +80,7 @@ class MealTimeSectionWidget extends StatelessWidget {
                                 ),
                               ),
                               child: CupertinoDatePicker(
-                                initialDateTime: DateTime(2025, 7, 21, 12),
+                                initialDateTime: initialDateTime,
                                 selectionOverlayBuilder: (BuildContext context,
                                         {required int columnCount,
                                         required int selectedIndex}) =>
@@ -86,7 +90,7 @@ class MealTimeSectionWidget extends StatelessWidget {
                                   ),
                                 ),
                                 mode: CupertinoDatePickerMode.time,
-                                onDateTimeChanged: (DateTime dateTime) {},
+                                onDateTimeChanged: onTimeChanged,
                               ),
                             ),
                           ),

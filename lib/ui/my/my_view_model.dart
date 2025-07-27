@@ -5,8 +5,8 @@ import '../../core/loading_status.dart';
 import '../../domain/invitation/model/invitation_model.dart';
 import '../../domain/invitation/use_case/create_invtaion_code_use_case.dart';
 import '../../domain/invitation/use_case/get_invitaion_use_case.dart';
-import '../../service/supabase/supabase_state.dart';
 import '../../service/supabase/supabase_service.dart';
+import '../../service/supabase/supabase_state.dart';
 import 'my_state.dart';
 
 final AutoDisposeStateNotifierProvider<MyViewModel, MyState>

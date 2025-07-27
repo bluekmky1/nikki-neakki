@@ -101,7 +101,7 @@ class MyState extends Equatable {
         enterInvitationCodeLoadingStatus,
       ];
 
-  bool get hasPartner => mealMateId.isNotEmpty;
+  bool get hasPartner => mealMateId.isEmpty;
 
   bool get isLoading =>
       getInvitationLoadingStatus == LoadingStatus.none ||
