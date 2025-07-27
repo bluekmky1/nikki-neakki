@@ -5,7 +5,8 @@ import '../../domain/meal/model/meal_model.dart';
 class HomeState extends Equatable {
   // 데이터 로딩 상태
   // 전체 식사 데이터 로딩 상태
-  final LoadingStatus getMealsLoadingStatus;
+  final LoadingStatus getMyMealsLoadingStatus;
+  final LoadingStatus getOtherMealsLoadingStatus;
   final List<MealModel> myMeals;
   final List<MealModel> otherMeals;
 
@@ -19,7 +20,8 @@ class HomeState extends Equatable {
   final String partnerId;
 
   const HomeState({
-    required this.getMealsLoadingStatus,
+    required this.getMyMealsLoadingStatus,
+    required this.getOtherMealsLoadingStatus,
     required this.selectedDate,
     required this.displayWeekStartDate,
     required this.selectedTabIndex,
@@ -29,7 +31,8 @@ class HomeState extends Equatable {
   });
 
   HomeState.init()
-      : getMealsLoadingStatus = LoadingStatus.none,
+      : getMyMealsLoadingStatus = LoadingStatus.none,
+        getOtherMealsLoadingStatus = LoadingStatus.none,
         selectedDate = DateTime.now(),
         displayWeekStartDate = DateTime.now(),
         selectedTabIndex = 0,
@@ -38,6 +41,8 @@ class HomeState extends Equatable {
         otherMeals = <MealModel>[];
 
   HomeState copyWith({
+    LoadingStatus? getMyMealsLoadingStatus,
+    LoadingStatus? getOtherMealsLoadingStatus,
     DateTime? selectedDate,
     DateTime? displayWeekStartDate,
     int? selectedTabIndex,
@@ -46,7 +51,10 @@ class HomeState extends Equatable {
     List<MealModel>? otherMeals,
   }) =>
       HomeState(
-        getMealsLoadingStatus: getMealsLoadingStatus,
+        getMyMealsLoadingStatus:
+            getMyMealsLoadingStatus ?? this.getMyMealsLoadingStatus,
+        getOtherMealsLoadingStatus:
+            getOtherMealsLoadingStatus ?? this.getOtherMealsLoadingStatus,
         selectedDate: selectedDate ?? this.selectedDate,
         displayWeekStartDate: displayWeekStartDate ?? this.displayWeekStartDate,
         selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
@@ -57,7 +65,8 @@ class HomeState extends Equatable {
 
   @override
   List<Object> get props => <Object>[
-        getMealsLoadingStatus,
+        getMyMealsLoadingStatus,
+        getOtherMealsLoadingStatus,
         selectedDate,
         selectedTabIndex,
         partnerId,

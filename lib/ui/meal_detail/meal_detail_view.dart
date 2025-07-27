@@ -136,14 +136,14 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        if (meal.thumbnailUrl.isNotEmpty)
+                        if (meal.imageUrl.isNotEmpty)
                           Container(
                             width: double.infinity,
                             height: 200,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
                               image: DecorationImage(
-                                image: NetworkImage(meal.thumbnailUrl),
+                                image: NetworkImage(meal.imageUrl),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -185,7 +185,7 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.main.withOpacity(0.1),
+                                  color: AppColors.main.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(

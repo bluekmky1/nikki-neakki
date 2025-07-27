@@ -9,6 +9,8 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../common/widgets/bottom_navigation_bar_widget.dart';
 import '../common/widgets/button/bottom_sheet_row_button_widget.dart';
+import '../common/widgets/button/filled_text_button_widget.dart';
+import 'my_state.dart';
 import 'my_view_model.dart';
 import 'widgets/meal_mate_section_widget.dart';
 
@@ -20,15 +22,34 @@ class MyView extends ConsumerStatefulWidget {
 }
 
 class _MyViewState extends ConsumerState<MyView> {
-  // 임시 상태 (나중에 상태관리로 대체)
-  bool isConnected = true; // true로 변경하면 연결된 상태 UI 확인 가능
-  String partnerNickname = '상대방닉네임';
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(myViewModelProvider.notifier).getInvitationCode();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final String username = ref.watch(supabaseServiceProvider).username;
 
-    final MyViewModel viewModel = ref.watch(myViewModelProvider.notifier);
+    final MyState state = ref.watch(myViewModelProvider);
+    final MyViewModel viewModel = ref.read(myViewModelProvider.notifier);
+
+    if (state.isLoading) {
+      return Scaffold(
+        bottomNavigationBar: BottomNavigationBarWidget(
+          currentRouteName: Routes.myPage.name,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(
+            color: AppColors.main,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
@@ -103,13 +124,14 @@ class _MyViewState extends ConsumerState<MyView> {
                   ),
                   const SizedBox(height: 16),
                   MealMateSectionWidget(
-                    isConnected: isConnected,
-                    partnerNickname: partnerNickname,
-                    coupleCode: 'ABC123',
-                    expiryDate: DateTime.now().add(const Duration(days: 7)),
+                    isConnected: state.hasPartner,
+                    partnerNickname: state.mealMateUserName,
+                    coupleCode: state.mealMateCode,
+                    expiryDate: state.mealMateCodeExpiryDate,
                     onCopyCode: () {
                       // 클립보드 복사 로직
-                      Clipboard.setData(const ClipboardData(text: 'ABC123'));
+                      Clipboard.setData(
+                          ClipboardData(text: state.mealMateCode));
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           backgroundColor: AppColors.gray900,
@@ -117,11 +139,14 @@ class _MyViewState extends ConsumerState<MyView> {
                         ),
                       );
                     },
-                    onGenerateNewCode: () {
-                      // 새 코드 생성 로직
-                    },
+                    onGenerateNewCode: viewModel.createInvitationCode,
                     onEnterCode: () {
-                      // 코드 입력 다이얼로그 열기
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) => const SafeArea(
+                          child: EnterCodeBottomSheetWidget(),
+                        ),
+                      );
                     },
                     onMore: () {
                       // 더보기 다이얼로그
@@ -160,6 +185,68 @@ class _MyViewState extends ConsumerState<MyView> {
       ),
     );
   }
+}
+
+class EnterCodeBottomSheetWidget extends ConsumerStatefulWidget {
+  const EnterCodeBottomSheetWidget({
+    super.key,
+  });
+
+  @override
+  ConsumerState<EnterCodeBottomSheetWidget> createState() =>
+      _EnterCodeBottomSheetWidgetState();
+}
+
+class _EnterCodeBottomSheetWidgetState
+    extends ConsumerState<EnterCodeBottomSheetWidget> {
+  final TextEditingController _codeController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  '코드 입력',
+                  style: AppTextStyles.textSb20,
+                ),
+                CloseButton(),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _codeController,
+              onChanged: (_) {
+                setState(() {});
+              },
+              decoration: const InputDecoration(
+                hintText: '코드를 입력해주세요',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: FilledTextButtonWidget(
+                    title: '입력',
+                    isEnabled: _codeController.text.isNotEmpty,
+                    onPressed: () {
+                      // viewModel.enterCode(
+                      //   codeController.text,
+                      // );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
 }
 
 class MealHeatBar extends StatelessWidget {

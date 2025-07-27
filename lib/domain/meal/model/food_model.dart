@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../data/meal/entity/food_entity.dart';
+
 class FoodModel extends Equatable {
   final String id;
   final String categoryName;
@@ -11,13 +13,15 @@ class FoodModel extends Equatable {
     required this.name,
   });
 
-  // factory ExampleModel.fromEntity({
-  //   required ExampleEntity entity,
-  // }) =>
-  //     ExampleModel(
-  //       id: entity.id,
-  //       title: entity.title,
-  //     );
+  factory FoodModel.fromEntity({
+    required FoodEntity entity,
+    Map<String, String>? categoryNames,
+  }) =>
+      FoodModel(
+        id: entity.id,
+        categoryName: categoryNames?[entity.categoryId] ?? '알 수 없음',
+        name: entity.foodNote,
+      );
 
   @override
   List<Object?> get props => <Object?>[

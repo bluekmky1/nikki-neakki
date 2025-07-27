@@ -36,7 +36,8 @@ class MealDetailState extends Equatable {
         meal: meal ?? this.meal,
         isMyMeal: isMyMeal ?? this.isMyMeal,
         partnerNickname: partnerNickname ?? this.partnerNickname,
-        showDeleteConfirmation: showDeleteConfirmation ?? this.showDeleteConfirmation,
+        showDeleteConfirmation:
+            showDeleteConfirmation ?? this.showDeleteConfirmation,
       );
 
   @override

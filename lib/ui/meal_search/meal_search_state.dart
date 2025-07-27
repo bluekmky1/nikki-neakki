@@ -27,7 +27,8 @@ class MealSearchState extends Equatable {
         mealList = <MealModel>[
           MealModel(
             id: '1',
-            thumbnailUrl: 'https://via.placeholder.com/150',
+            imageUrl: 'https://via.placeholder.com/150',
+            userId: '1',
             mealTime: DateTime.now(),
             mealType: MealType.breakfast,
             foods: const <FoodModel>[
@@ -45,7 +46,8 @@ class MealSearchState extends Equatable {
           ),
           MealModel(
             id: '1',
-            thumbnailUrl: 'https://via.placeholder.com/150',
+            imageUrl: 'https://via.placeholder.com/150',
+            userId: '1',
             mealTime: DateTime.now(),
             mealType: MealType.breakfast,
             foods: const <FoodModel>[
@@ -63,7 +65,8 @@ class MealSearchState extends Equatable {
           ),
           MealModel(
             id: '1',
-            thumbnailUrl: 'https://via.placeholder.com/150',
+            imageUrl: 'https://via.placeholder.com/150',
+            userId: '1',
             mealTime: DateTime.now(),
             mealType: MealType.breakfast,
             foods: const <FoodModel>[
@@ -85,7 +88,8 @@ class MealSearchState extends Equatable {
         searchMealList = <MealModel>[
           MealModel(
             id: '1',
-            thumbnailUrl: 'https://via.placeholder.com/150',
+            imageUrl: 'https://via.placeholder.com/150',
+            userId: '1',
             mealTime: DateTime.now(),
             mealType: MealType.breakfast,
             foods: const <FoodModel>[

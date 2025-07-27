@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../core/loading_status.dart';
 import '../../domain/meal/model/food_model.dart';
+import '../../ui/common/consts/meal_type.dart';
 import 'record_food_state.dart';
 
 final AutoDisposeStateNotifierProvider<RecordFoodViewModel, RecordFoodState>
@@ -16,20 +18,19 @@ class RecordFoodViewModel extends StateNotifier<RecordFoodState> {
     required RecordFoodState state,
   }) : super(state);
 
-  Future<void> addToCategory({required String category}) async {
-    state = state.copyWith(
-      allFoodCategories: <String>[...state.allFoodCategories, category],
-      searchedFoodCategories: <String>[...state.allFoodCategories, category],
-    );
-  }
+  // 새 음식 카테고리 생성
+  Future<void> addToCategory({required String category}) async {}
 
-  void onSearchFoodCategory({required String searchKeyword}) {
+  // 음식 카테고리 검색
+  Future<void> onSearchFoodCategory({required String searchKeyword}) async {
     state = state.copyWith(
       searchKeyword: searchKeyword,
-      searchedFoodCategories: state.allFoodCategories
-          .where((String foodCategory) =>
-              foodCategory.toLowerCase().contains(searchKeyword.toLowerCase()))
-          .toList(),
+      loadingStatus: LoadingStatus.loading,
+    );
+
+    state = state.copyWith(
+      loadingStatus: LoadingStatus.success,
+      searchedFoodCategories: <String>[],
     );
   }
 
@@ -76,5 +77,31 @@ class RecordFoodViewModel extends StateNotifier<RecordFoodState> {
     if (image != null) {
       state = state.copyWith(pickedImage: image);
     }
+  }
+
+  // 식사 데이터 저장
+  Future<bool> saveMeal({
+    required MealType mealType,
+    required DateTime mealTime,
+  }) async {
+    if (!state.canSave) {
+      return false;
+    }
+
+    state = state.copyWith(loadingStatus: LoadingStatus.loading);
+
+    String imageUrl = '';
+    if (state.pickedImage != null) {
+      // 이미지 업로드 로직 구현 필요
+      imageUrl = 'https://example.com/uploaded-image.jpg';
+    }
+
+    state = state.copyWith(loadingStatus: LoadingStatus.success);
+    return true;
+  }
+
+  // 폼 초기화
+  void resetForm() {
+    state = const RecordFoodState.init();
   }
 }

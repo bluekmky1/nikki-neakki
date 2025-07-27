@@ -43,6 +43,15 @@ class _OneLineCalendarState extends ConsumerState<OneLineCalendar> {
     final HomeState state = ref.watch(homeViewModelProvider);
     final HomeViewModel viewModel = ref.read(homeViewModelProvider.notifier);
 
+    ref.listen(
+        homeViewModelProvider
+            .select((HomeState state) => state.displayWeekStartDate),
+        (DateTime? previous, DateTime? next) {
+      if (previous != next) {
+        _pageController.jumpToPage(_getWeekPage(next!));
+      }
+    });
+
     return SizedBox(
       height: 60,
       child: PageView.builder(

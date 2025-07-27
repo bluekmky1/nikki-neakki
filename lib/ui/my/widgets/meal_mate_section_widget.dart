@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
+import '../../../util/date_time_formatter.dart';
 
 class MealMateSectionWidget extends StatelessWidget {
   final bool isConnected;
@@ -46,7 +47,7 @@ class MealMateSectionWidget extends StatelessWidget {
                   onMore: onMore,
                 )
               : MealMateDisconnectedWidget(
-                  coupleCode: coupleCode ?? 'ABC123',
+                  coupleCode: coupleCode ?? '',
                   expiryDate: expiryDate,
                   onCopyCode: onCopyCode,
                   onGenerateNewCode: onGenerateNewCode,
@@ -72,25 +73,6 @@ class MealMateDisconnectedWidget extends StatelessWidget {
     this.onEnterCode,
   });
 
-  String _formatExpiryDate(DateTime? date) {
-    if (date == null) {
-      return '7일 후 만료';
-    }
-
-    final DateTime now = DateTime.now();
-    final int difference = date.difference(now).inDays;
-    final String formattedDate =
-        '''${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}''';
-
-    if (difference <= 0) {
-      return '만료됨';
-    } else if (difference == 1) {
-      return '내일 만료 ($formattedDate)';
-    } else {
-      return '$difference일 후 만료 ($formattedDate)';
-    }
-  }
-
   @override
   Widget build(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,97 +82,106 @@ class MealMateDisconnectedWidget extends StatelessWidget {
             style: AppTextStyles.textB16,
           ),
           const SizedBox(height: 12),
-          const Text(
-            '아래 코드를 친구에게 공유해서 함께 식사 기록을 시작해보세요',
+          Text(
+            coupleCode.isEmpty
+                ? '코드를 생성해서 친구에게 공유해서 함께 식사 기록을 시작해보세요'
+                : '아래 코드를 친구에게 공유해서 함께 식사 기록을 시작해보세요',
             style: AppTextStyles.textR14,
           ),
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.gray100,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.gray200),
-            ),
-            child: Row(
+          if (coupleCode.isEmpty)
+            Row(
               children: <Widget>[
                 Expanded(
-                  child: Text(
-                    coupleCode,
-                    style: AppTextStyles.textM18,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                IconButton(
-                  onPressed: onCopyCode,
-                  icon: const Icon(
-                    Icons.content_copy,
-                    color: AppColors.deepMain,
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: AppColors.deepMain,
+                      foregroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: onGenerateNewCode,
+                    child: const Text(
+                      '코드 생성',
+                      style: AppTextStyles.textM14,
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: <Widget>[
-              const Icon(
-                Icons.schedule,
-                size: 16,
-                color: AppColors.gray500,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                _formatExpiryDate(expiryDate),
-                style: AppTextStyles.textR12.copyWith(
-                  color: AppColors.gray500,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.deepMain,
-                    side: const BorderSide(
-                      color: AppColors.deepMain,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+          if (coupleCode.isNotEmpty)
+            Column(
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
                   ),
-                  onPressed: onGenerateNewCode,
-                  child: const Text(
-                    '새 코드 생성',
-                    style: AppTextStyles.textM14,
+                  decoration: BoxDecoration(
+                    color: AppColors.gray100,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.gray200),
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          coupleCode,
+                          style: AppTextStyles.textM18,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: onCopyCode,
+                        icon: const Icon(
+                          Icons.content_copy,
+                          color: AppColors.deepMain,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.deepMain,
-                    foregroundColor: AppColors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: 12),
+                Row(
+                  children: <Widget>[
+                    const Icon(
+                      Icons.schedule,
+                      size: 16,
+                      color: AppColors.gray500,
                     ),
-                  ),
-                  onPressed: onEnterCode,
-                  child: const Text(
-                    '코드 입력',
-                    style: AppTextStyles.textM14,
-                  ),
+                    const SizedBox(width: 4),
+                    Text(
+                      DateTimeFormatter.formatExpiryDate(expiryDate),
+                      style: AppTextStyles.textR12.copyWith(
+                        color: AppColors.gray500,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(height: 10),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: AppColors.deepMain,
+                          foregroundColor: AppColors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: onEnterCode,
+                        child: const Text(
+                          '코드 입력',
+                          style: AppTextStyles.textM14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
         ],
       );
 }

@@ -8,7 +8,7 @@ import '../../../util/date_time_formatter.dart';
 import '../home_state.dart';
 import '../home_view_model.dart';
 
-class MealTimelineBar extends StatefulWidget {
+class MealTimelineBar extends ConsumerStatefulWidget {
   final List<MealModel> myMeals;
   final List<MealModel> otherMeals;
 
@@ -19,10 +19,10 @@ class MealTimelineBar extends StatefulWidget {
   });
 
   @override
-  State<MealTimelineBar> createState() => _MealTimelineBarState();
+  ConsumerState<MealTimelineBar> createState() => _MealTimelineBarState();
 }
 
-class _MealTimelineBarState extends State<MealTimelineBar>
+class _MealTimelineBarState extends ConsumerState<MealTimelineBar>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -52,7 +52,7 @@ class _MealTimelineBarState extends State<MealTimelineBar>
     final TimeOfDay now = TimeOfDay.now();
     final double nowFraction = _timeToFraction(now);
     const double marginHorizontal = 56;
-
+    final HomeState state = ref.watch(homeViewModelProvider);
     return SizedBox(
       // 높이 조절 (타임라인 높이 + 시간 라벨 높이)
       height: barTop + barHeight + 65,
@@ -91,7 +91,10 @@ class _MealTimelineBarState extends State<MealTimelineBar>
                   child: Row(
                     children: <Widget>[
                       Container(
-                        width: timelineWidth * nowFraction,
+                        width: state.isToday
+                            ? (timelineWidth - 2 * marginHorizontal) *
+                                nowFraction
+                            : timelineWidth - 2 * marginHorizontal,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: <Color>[
@@ -117,10 +120,11 @@ class _MealTimelineBarState extends State<MealTimelineBar>
                 (MealModel meal) {
                   final double fraction =
                       _timeToFraction(TimeOfDay.fromDateTime(meal.mealTime));
-                  final double left =
-                      (marginHorizontal + fraction * timelineWidth - dotRadius)
-                          .clamp(marginHorizontal - dotRadius,
-                              marginHorizontal + timelineWidth - dotRadius);
+                  final double left = (marginHorizontal +
+                          fraction * (timelineWidth - 2 * marginHorizontal) -
+                          dotRadius)
+                      .clamp(marginHorizontal - dotRadius,
+                          timelineWidth - marginHorizontal - dotRadius);
                   return Stack(
                     children: <Widget>[
                       // 나
@@ -155,8 +159,12 @@ class _MealTimelineBarState extends State<MealTimelineBar>
                 (MealModel meal) {
                   final double fraction =
                       _timeToFraction(TimeOfDay.fromDateTime(meal.mealTime));
-                  final double left = (fraction * timelineWidth - dotRadius)
-                      .clamp(0.0, timelineWidth - dotRadius * 2);
+
+                  final double left = (marginHorizontal +
+                          fraction * (timelineWidth - 2 * marginHorizontal) -
+                          dotRadius)
+                      .clamp(marginHorizontal - dotRadius,
+                          timelineWidth - marginHorizontal - dotRadius);
                   return Stack(
                     children: <Widget>[
                       // 나
@@ -203,7 +211,7 @@ class _MealTimelineBarState extends State<MealTimelineBar>
                         }
                         return Text(
                           (index * 2).toString(),
-                          style: AppTextStyles.textSb14.copyWith(
+                          style: AppTextStyles.textR12.copyWith(
                             color: AppColors.gray500,
                           ),
                         );

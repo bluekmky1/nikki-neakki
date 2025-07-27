@@ -20,11 +20,11 @@ class MealDetailViewModel extends StateNotifier<MealDetailState> {
   void loadMealDetail({required String mealId}) {
     state = state.copyWith(loadingStatus: LoadingStatus.loading);
 
-    // TODO: 실제 API 호출로 대체
     // 임시 데이터
     final MealModel mockMeal = MealModel(
       id: mealId,
-      thumbnailUrl: '',
+      imageUrl: '',
+      userId: '1',
       mealTime: DateTime.now(),
       mealType: MealType.lunch,
       foods: const <FoodModel>[
@@ -37,7 +37,7 @@ class MealDetailViewModel extends StateNotifier<MealDetailState> {
     state = state.copyWith(
       loadingStatus: LoadingStatus.success,
       meal: mockMeal,
-      isMyMeal: true, // TODO: 실제 userId 비교로 대체
+      isMyMeal: true,
       partnerNickname: '상대방닉네임',
     );
   }
@@ -51,11 +51,12 @@ class MealDetailViewModel extends StateNotifier<MealDetailState> {
   }
 
   void deleteMeal() {
-    if (state.meal == null) return;
+    if (state.meal == null) {
+      return;
+    }
 
     state = state.copyWith(loadingStatus: LoadingStatus.loading);
 
-    // TODO: 실제 삭제 API 호출로 대체
     // 임시로 성공 처리
     state = state.copyWith(
       loadingStatus: LoadingStatus.success,
@@ -63,7 +64,5 @@ class MealDetailViewModel extends StateNotifier<MealDetailState> {
     );
   }
 
-  void editMeal() {
-    // TODO: 음식 기록 화면으로 이동하는 로직 구현
-  }
+  void editMeal() {}
 }

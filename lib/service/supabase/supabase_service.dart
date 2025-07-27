@@ -15,7 +15,6 @@ final StateNotifierProvider<SupabaseService, SupabaseState>
   ),
 );
 
-// Supabase 초기화를 위한 클래스
 class SupabaseService extends StateNotifier<SupabaseState> {
   SupabaseService({required SupabaseState state}) : super(state);
 
@@ -28,7 +27,6 @@ class SupabaseService extends StateNotifier<SupabaseState> {
     try {
       final UserResponse user = await supabaseClient.auth.getUser();
       final String username = user.user?.userMetadata?['user_name'] ?? '';
-      print('username: $username');
       state = state.copyWith(
         isSignedIn: true,
         userId: user.user?.id ?? '',

@@ -1,34 +1,49 @@
 import 'package:equatable/equatable.dart';
+import '../../../data/meal/entity/meal_entity.dart';
 import '../../../ui/common/consts/meal_type.dart';
 import 'food_model.dart';
 
 class MealModel extends Equatable {
   final String id;
-  final String thumbnailUrl;
+  final String userId;
+  final String imageUrl;
   final DateTime mealTime;
   final MealType mealType;
   final List<FoodModel> foods;
 
   const MealModel({
     required this.id,
-    required this.thumbnailUrl,
+    required this.userId,
+    required this.imageUrl,
     required this.mealTime,
     required this.mealType,
     required this.foods,
   });
 
-  // factory ExampleModel.fromEntity({
-  //   required ExampleEntity entity,
-  // }) =>
-  //     ExampleModel(
-  //       id: entity.id,
-  //       title: entity.title,
-  //     );
+  factory MealModel.fromEntity({
+    required MealEntity entity,
+    Map<String, String>? categoryNames,
+  }) =>
+      MealModel(
+        id: entity.id,
+        userId: entity.userId,
+        imageUrl: entity.imageUrl ?? '',
+        mealTime: entity.mealTime,
+        mealType: MealType.fromString(entity.mealType),
+        foods: List<FoodModel>.generate(
+          entity.foods.length,
+          (int index) => FoodModel.fromEntity(
+            entity: entity.foods[index],
+            categoryNames: categoryNames,
+          ),
+        ),
+      );
 
   @override
   List<Object?> get props => <Object?>[
         id,
-        thumbnailUrl,
+        userId,
+        imageUrl,
         mealTime,
         mealType,
         foods,

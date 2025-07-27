@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,10 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../util/text_utils.dart';
-import '../common/widgets/button/bottom_sheet_row_button_widget.dart';
 import '../common/widgets/button/filled_text_button_widget.dart';
+import '../common/widgets/input/image_picker_widget.dart';
 import 'record_food_state.dart';
 import 'record_food_view_model.dart';
+import 'widgets/food_input_section_widget.dart';
+import 'widgets/food_list_section_widget.dart';
+import 'widgets/meal_time_section_widget.dart';
 
 class RecordFoodView extends ConsumerStatefulWidget {
   const RecordFoodView({
@@ -50,384 +50,88 @@ class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: <Widget>[
-                      Text(
-                        '식사 시간 :',
-                        style: AppTextStyles.textSb18.copyWith(
-                          color: AppColors.gray900,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '오후 12:35',
-                        style: AppTextStyles.textR18.copyWith(
-                          color: AppColors.gray900,
-                        ),
-                      ),
-                      const Spacer(),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppColors.deepMain,
-                          textStyle: AppTextStyles.textR18.copyWith(
-                            color: AppColors.deepMain,
-                          ),
-                        ),
-                        onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (BuildContext context) => SafeArea(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Row(
-                                      children: <Widget>[
-                                        Text(
-                                          '식사 시간',
-                                          style:
-                                              AppTextStyles.textSb22.copyWith(
-                                            color: AppColors.gray900,
-                                          ),
-                                        ),
-                                        const Spacer(),
-                                        const CloseButton(),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 16),
-                                    SizedBox(
-                                      height: 200,
-                                      child: CupertinoTheme(
-                                        data: CupertinoThemeData(
-                                          textTheme: CupertinoTextThemeData(
-                                            dateTimePickerTextStyle:
-                                                AppTextStyles.textR16.copyWith(
-                                              fontSize: 28,
-                                              color: AppColors.gray900,
-                                            ),
-                                          ),
-                                        ),
-                                        child: CupertinoDatePicker(
-                                          initialDateTime:
-                                              DateTime(2025, 7, 21, 12),
-                                          selectionOverlayBuilder:
-                                              (BuildContext context,
-                                                      {required int columnCount,
-                                                      required int
-                                                          selectedIndex}) =>
-                                                  Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                            ),
-                                          ),
-                                          mode: CupertinoDatePickerMode.time,
-                                          onDateTimeChanged:
-                                              (DateTime dateTime) {},
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    TextButton(
-                                      onPressed: () {},
-                                      style: TextButton.styleFrom(
-                                        backgroundColor: AppColors.main,
-                                        foregroundColor: AppColors.white,
-                                        textStyle:
-                                            AppTextStyles.textSb18.copyWith(
-                                          color: AppColors.white,
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 16,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                        ),
-                                      ),
-                                      child: const Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Text('설정'),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                        child: const Text('설정'),
-                      ),
-                    ],
-                  ),
+                MealTimeSectionWidget(
+                  mealTime: '오후 12:35',
+                  onTimeSettingTap: () {},
                 ),
-                // 음식 이미지
-                GestureDetector(
-                  onTap: () {
+                ImagePickerWidget(
+                  pickedImage: state.pickedImage,
+                  onCameraTap: () async {
+                    await viewModel.pickImageFromCamera();
+                  },
+                  onGalleryTap: () async {
+                    await viewModel.pickImage();
+                  },
+                ),
+                FoodInputSectionWidget(
+                  selectedFoodCategory: state.selectedFoodCategory,
+                  foodNameController: _editingFoodNameController,
+                  onCategoryTap: () {
                     showModalBottomSheet(
                       context: context,
-                      builder: (BuildContext context) => SafeArea(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              BottomSheetRowButtonWidget(
-                                title: '카메라',
-                                icon: Icons.camera_alt,
-                                onTap: () async {
-                                  await viewModel.pickImageFromCamera();
-                                },
-                              ),
-                              BottomSheetRowButtonWidget(
-                                title: '갤러리',
-                                icon: Icons.photo_library,
-                                onTap: () async {
-                                  await viewModel.pickImage();
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      isScrollControlled: true,
+                      enableDrag: false,
+                      builder: (BuildContext context) => SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.65,
+                          child: const CategorySelectBottomSheetWidget()),
                     );
                   },
-                  child: Container(
-                    width: double.infinity,
-                    height: 200,
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.gray300,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: state.pickedImage != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.file(
-                              File(state.pickedImage!.path),
-                              width: double.infinity,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                const SizedBox(height: 8),
-                                const Icon(
-                                  Icons.add_photo_alternate_outlined,
-                                  size: 24,
-                                  color: AppColors.gray600,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  '사진 추가',
-                                  style: AppTextStyles.textR14.copyWith(
-                                    color: AppColors.gray600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                  ),
-                ),
-                // 음식 태그와 리스트 추가 버튼
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: <Widget>[
-                      GestureDetector(
-                        onTap: () {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            enableDrag: false,
-                            builder: (BuildContext context) => SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.65,
-                                child: const CategorySelectBottomSheetWidget()),
-                          );
-                        },
-                        child: Container(
+                  onAddFoodTap: () {
+                    if (state.selectedFoodCategory.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                            horizontal: 16,
+                            vertical: 20,
                           ),
-                          decoration: BoxDecoration(
-                            color: AppColors.gray100,
-                            border: Border.all(
-                              color: state.selectedFoodCategory.isEmpty
-                                  ? AppColors.gray400
-                                  : AppColors.deepMain,
-                            ),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            state.selectedFoodCategory.isEmpty
-                                ? '카테고리'
-                                : state.selectedFoodCategory,
+                          backgroundColor: AppColors.gray900,
+                          content: Text(
+                            '음식 카테고리를 선택해주세요.',
                             style: AppTextStyles.textR14.copyWith(
-                              color: state.selectedFoodCategory.isEmpty
-                                  ? AppColors.gray600
-                                  : AppColors.deepMain,
+                              color: AppColors.white,
                             ),
                           ),
+                          behavior: SnackBarBehavior.floating,
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextField(
-                          controller: _editingFoodNameController,
-                          onTapOutside: (PointerDownEvent event) =>
-                              FocusScope.of(context).unfocus(),
-                          style: AppTextStyles.textR14.copyWith(
-                            color: AppColors.gray900,
+                      );
+                      return;
+                    }
+                    if (_editingFoodNameController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 20,
                           ),
-                          onChanged: (String value) {
-                            setState(() {});
-                          },
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            errorBorder: InputBorder.none,
-                            hintText: '추가할 음식 이름',
-                            hintStyle: AppTextStyles.textR14.copyWith(
-                              color: AppColors.gray600,
+                          backgroundColor: AppColors.gray900,
+                          content: Text(
+                            '음식 이름을 입력해주세요.',
+                            style: AppTextStyles.textR14.copyWith(
+                              color: AppColors.white,
                             ),
                           ),
+                          behavior: SnackBarBehavior.floating,
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        style: IconButton.styleFrom(
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          padding: EdgeInsets.zero,
-                          iconSize: 24,
-                        ),
-                        onPressed: () {
-                          if (state.selectedFoodCategory.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 20,
-                                ),
-                                backgroundColor: AppColors.gray900,
-                                content: Text(
-                                  '음식 카테고리를 선택해주세요.',
-                                  style: AppTextStyles.textR14.copyWith(
-                                    color: AppColors.white,
-                                  ),
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                            return;
-                          }
-                          if (_editingFoodNameController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 20,
-                                ),
-                                backgroundColor: AppColors.gray900,
-                                content: Text(
-                                  '음식 이름을 입력해주세요.',
-                                  style: AppTextStyles.textR14.copyWith(
-                                    color: AppColors.white,
-                                  ),
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                            return;
-                          } else {
-                            viewModel.addFood(
-                              foodName: _editingFoodNameController.text,
-                            );
+                      );
+                      return;
+                    } else {
+                      viewModel.addFood(
+                        foodName: _editingFoodNameController.text,
+                      );
 
-                            _editingFoodNameController.clear();
-                          }
-                        },
-                        icon: const Icon(Icons.add),
-                      ),
-                    ],
-                  ),
+                      _editingFoodNameController.clear();
+                      setState(() {});
+                    }
+                  },
                 ),
-                const SizedBox(height: 6),
-                const Divider(
-                  color: AppColors.gray400,
-                  height: 1,
-                ),
-                const SizedBox(height: 12),
               ],
             ),
           ),
-          SliverList.builder(
-            itemCount: state.foods.length,
-            itemBuilder: (BuildContext context, int index) => Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Row(
-                children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.gray100,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: AppColors.deepMain,
-                      ),
-                    ),
-                    child: Text(
-                      state.foods[index].categoryName,
-                      style: AppTextStyles.textR14.copyWith(
-                        color: AppColors.deepMain,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 16,
-                  ),
-                  Expanded(
-                    child: Text(
-                      state.foods[index].name,
-                      style: AppTextStyles.textR14.copyWith(
-                        color: AppColors.gray900,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  IconButton(
-                    onPressed: () {
-                      viewModel.deleteFood(foodIndex: index);
-                    },
-                    style: IconButton.styleFrom(
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      padding: EdgeInsets.zero,
-                      iconSize: 24,
-                    ),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-            ),
+          FoodListSectionWidget(
+            foods: state.foods,
+            onDeleteFood: (int index) {
+              viewModel.deleteFood(foodIndex: index);
+            },
           ),
         ],
       ),
