@@ -92,4 +92,108 @@ class MealRepository extends Repository {
       );
     }
   }
+
+  Future<RepositoryResult<void>> deleteMeal({
+    required String userId,
+    required String mealId,
+    required String imageUrl,
+  }) async {
+    try {
+      await _mealRemoteDataSource.deleteMeal(
+        userId: userId,
+        mealId: mealId,
+        imageUrl: imageUrl,
+      );
+
+      return const SuccessRepositoryResult<void>(
+        data: null,
+      );
+    } on PostgrestException catch (e) {
+      return FailureRepositoryResult<List<MealEntity>>(
+        error: e,
+        messages: <String>[
+          '식사 삭제 과정에 오류가 발생했습니다: ${e.message}',
+        ],
+      );
+    } on AuthException catch (e) {
+      return FailureRepositoryResult<List<MealEntity>>(
+        error: e,
+        messages: <String>['인증 오류가 발생했습니다: ${e.message}'],
+      );
+    } on Exception catch (e) {
+      return FailureRepositoryResult<List<MealEntity>>(
+        error: e,
+        messages: <String>['예상치 못한 오류가 발생했습니다'],
+      );
+    }
+  }
+
+  Future<RepositoryResult<List<MealEntity>>> getMealsListWithPagination({
+    required String userId,
+    int? limit,
+    String? cursor,
+  }) async {
+    try {
+      final List<MealEntity> entity =
+          await _mealRemoteDataSource.getMealsListWithPagination(
+        userId: userId,
+        limit: limit,
+        cursor: cursor,
+      );
+
+      return SuccessRepositoryResult<List<MealEntity>>(
+        data: entity,
+      );
+    } on PostgrestException catch (e) {
+      return FailureRepositoryResult<List<MealEntity>>(
+        error: e,
+        messages: <String>[
+          '식사 목록 조회 과정에 오류가 발생했습니다: ${e.message}',
+        ],
+      );
+    } on AuthException catch (e) {
+      return FailureRepositoryResult<List<MealEntity>>(
+        error: e,
+        messages: <String>['인증 오류가 발생했습니다: ${e.message}'],
+      );
+    } on Exception catch (e) {
+      return FailureRepositoryResult<List<MealEntity>>(
+        error: e,
+        messages: <String>['예상치 못한 오류가 발생했습니다'],
+      );
+    }
+  }
+
+  Future<RepositoryResult<List<MealEntity>>> searchMeals({
+    required String userId,
+    required String searchKeyword,
+  }) async {
+    try {
+      final List<MealEntity> entity = await _mealRemoteDataSource.searchMeals(
+        userId: userId,
+        searchKeyword: searchKeyword,
+      );
+
+      return SuccessRepositoryResult<List<MealEntity>>(
+        data: entity,
+      );
+    } on PostgrestException catch (e) {
+      return FailureRepositoryResult<List<MealEntity>>(
+        error: e,
+        messages: <String>[
+          '식사 검색 과정에 오류가 발생했습니다: ${e.message}',
+        ],
+      );
+    } on AuthException catch (e) {
+      return FailureRepositoryResult<List<MealEntity>>(
+        error: e,
+        messages: <String>['인증 오류가 발생했습니다: ${e.message}'],
+      );
+    } on Exception catch (e) {
+      return FailureRepositoryResult<List<MealEntity>>(
+        error: e,
+        messages: <String>['예상치 못한 오류가 발생했습니다'],
+      );
+    }
+  }
 }

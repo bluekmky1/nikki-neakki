@@ -10,7 +10,7 @@ import '../ui/login/login_view.dart';
 import '../ui/meal_detail/meal_detail_view.dart';
 import '../ui/meal_search/meal_search_view.dart';
 import '../ui/my/my_view.dart';
-import '../ui/record_food/record_food_view.dart';
+import '../ui/record_meal/record_meal_view.dart';
 import 'app_router_interceptor.dart';
 import 'redirect_notifier.dart';
 import 'routes.dart';
@@ -64,8 +64,9 @@ class AppRouter {
         path: Routes.recordFood.path,
         pageBuilder: (BuildContext context, GoRouterState state) =>
             NoTransitionPage<dynamic>(
-          child: RecordFoodView(
+          child: RecordMealView(
             mealType: state.pathParameters['mealType'] ?? '아침',
+            date: state.extra! as DateTime,
           ),
         ),
       ),

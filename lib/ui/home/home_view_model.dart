@@ -3,9 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/common/use_case/use_case_result.dart';
 import '../../core/loading_status.dart';
 import '../../domain/meal/model/meal_model.dart';
+import '../../domain/meal/use_case/delete_meal_use_case.dart';
 import '../../domain/meal/use_case/get_meal_list_use_case.dart';
+import '../../service/category/category_service.dart';
 import '../../service/meal_mate/meal_mate_service.dart';
-import '../../service/meal_mate/meal_mate_state.dart';
 import '../../service/supabase/supabase_service.dart';
 import '../../service/supabase/supabase_state.dart';
 import 'home_state.dart';
@@ -15,35 +16,58 @@ final AutoDisposeStateNotifierProvider<HomeViewModel, HomeState>
   (Ref<HomeState> ref) => HomeViewModel(
     state: HomeState.init(),
     supabaseState: ref.read(supabaseServiceProvider),
-    mealMateState: ref.read(mealMateServiceProvider),
+    categoryService: ref.read(categoryServiceProvider.notifier),
+    mealMateService: ref.read(mealMateServiceProvider.notifier),
     getMealListUseCase: ref.read(getMealListUseCaseProvider),
+    deleteMealUseCase: ref.read(deleteMealUseCaseProvider),
   ),
 );
 
 class HomeViewModel extends StateNotifier<HomeState> {
   final SupabaseState _supabaseState;
-  final MealMateState _mealMateState;
-
+  final CategoryService _categoryService;
+  final MealMateService _mealMateService;
   final GetMealListUseCase _getMealListUseCase;
+  final DeleteMealUseCase _deleteMealUseCase;
 
   HomeViewModel({
     required HomeState state,
     required SupabaseState supabaseState,
-    required MealMateState mealMateState,
+    required CategoryService categoryService,
+    required MealMateService mealMateService,
     required GetMealListUseCase getMealListUseCase,
+    required DeleteMealUseCase deleteMealUseCase,
   })  : _supabaseState = supabaseState,
-        _mealMateState = mealMateState,
+        _categoryService = categoryService,
+        _mealMateService = mealMateService,
         _getMealListUseCase = getMealListUseCase,
+        _deleteMealUseCase = deleteMealUseCase,
         super(state);
+
+  Future<void> init() async {
+    await _mealMateService.getMealMate();
+    await _categoryService.getMyFoodCategories();
+    await _categoryService.getPartnerFoodCategories();
+    state = state.copyWith(
+      myCategoryNames: _categoryService.state.myFoodCategories,
+      otherCategoryNames: _categoryService.state.partnerFoodCategories,
+    );
+    await getMyMealList(date: DateTime.now());
+    await getOtherMealList(date: DateTime.now());
+  }
 
   Future<void> getMyMealList({
     required DateTime date,
   }) async {
-    state = state.copyWith(getMyMealsLoadingStatus: LoadingStatus.loading);
+    final DateTime normalizedDate = DateTime(date.year, date.month, date.day);
+    state = state.copyWith(
+      getMyMealsLoadingStatus: LoadingStatus.loading,
+      myMeals: <MealModel>[],
+    );
 
     final UseCaseResult<List<MealModel>> result = await _getMealListUseCase(
       userId: _supabaseState.userId,
-      date: date,
+      date: normalizedDate,
     );
 
     switch (result) {
@@ -56,6 +80,67 @@ class HomeViewModel extends StateNotifier<HomeState> {
       case FailureUseCaseResult<List<MealModel>>():
         state = state.copyWith(
           getMyMealsLoadingStatus: LoadingStatus.error,
+        );
+    }
+  }
+
+  Future<void> getOtherMealList({
+    required DateTime date,
+  }) async {
+    if (state.partnerId.isEmpty) {
+      state = state.copyWith(getOtherMealsLoadingStatus: LoadingStatus.success);
+      return;
+    }
+
+    final DateTime normalizedDate = DateTime(date.year, date.month, date.day);
+    state = state.copyWith(
+      getOtherMealsLoadingStatus: LoadingStatus.loading,
+      otherMeals: <MealModel>[],
+    );
+
+    final UseCaseResult<List<MealModel>> result = await _getMealListUseCase(
+      userId: state.partnerId,
+      date: normalizedDate,
+    );
+
+    switch (result) {
+      case SuccessUseCaseResult<List<MealModel>>():
+        state = state.copyWith(
+          otherMeals: result.data,
+          getOtherMealsLoadingStatus: LoadingStatus.success,
+        );
+
+      case FailureUseCaseResult<List<MealModel>>():
+        state = state.copyWith(
+          getOtherMealsLoadingStatus: LoadingStatus.error,
+        );
+    }
+  }
+
+  Future<void> deleteMeal({
+    required String mealId,
+    required String imageUrl,
+  }) async {
+    state = state.copyWith(deleteMealLoadingStatus: LoadingStatus.loading);
+
+    final UseCaseResult<void> result = await _deleteMealUseCase(
+      userId: _supabaseState.userId,
+      mealId: mealId,
+      imageUrl: imageUrl,
+    );
+
+    switch (result) {
+      case SuccessUseCaseResult<void>():
+        state = state.copyWith(
+          myMeals: state.myMeals
+              .where((MealModel meal) => meal.id != mealId)
+              .toList(),
+          deleteMealLoadingStatus: LoadingStatus.success,
+        );
+
+      case FailureUseCaseResult<void>():
+        state = state.copyWith(
+          deleteMealLoadingStatus: LoadingStatus.error,
         );
     }
   }
@@ -87,5 +172,11 @@ class HomeViewModel extends StateNotifier<HomeState> {
 
   void resetJumpFlag() {
     state = state.copyWith(shouldJump: false);
+  }
+
+  void onCreateMeal({required MealModel meal}) {
+    state = state.copyWith(
+      myMeals: <MealModel>[...state.myMeals, meal],
+    );
   }
 }

@@ -22,6 +22,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(homeViewModelProvider.notifier).init();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -79,12 +87,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               ),
             ),
           ),
-          MealListSectionWidget(
-            hasPartner: state.hasPartner,
-            selectedTabIndex: state.selectedTabIndex,
-            myMeals: state.myMeals,
-            otherMeals: state.otherMeals,
-          ),
+          const MealListSectionWidget(),
         ],
       ),
     );

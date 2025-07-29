@@ -113,7 +113,7 @@ class _MyViewState extends ConsumerState<MyView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           const Text(
-                            '나의 밥 시간',
+                            '7일 동안의 나의 밥 시간',
                             style: AppTextStyles.textB16,
                           ),
                           const SizedBox(height: 12),
@@ -234,7 +234,6 @@ class _EnterCodeBottomSheetWidgetState
                 Expanded(
                   child: FilledTextButtonWidget(
                     title: '입력',
-                    isEnabled: _codeController.text.isNotEmpty,
                     onPressed: () {
                       // viewModel.enterCode(
                       //   codeController.text,

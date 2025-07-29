@@ -49,7 +49,11 @@ class CalendarHeaderWidget extends StatelessWidget {
             style: IconButton.styleFrom(
               foregroundColor: AppColors.gray900,
             ),
-            icon: const Icon(Icons.event),
+            icon: const Icon(
+              Icons.event,
+              size: 24,
+              color: AppColors.gray900,
+            ),
           ),
         ],
       );

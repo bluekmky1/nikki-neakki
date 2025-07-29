@@ -2,31 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/loading_status.dart';
+import '../../domain/food_category/model/food_category_model.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../util/date_time_formatter.dart';
 import '../../util/text_utils.dart';
 import '../common/widgets/button/filled_text_button_widget.dart';
-import 'record_food_state.dart';
-import 'record_food_view_model.dart';
+import '../home/home_view_model.dart';
+import 'record_meal_state.dart';
+import 'record_meal_view_model.dart';
 import 'widgets/food_input_section_widget.dart';
 import 'widgets/food_list_section_widget.dart';
 import 'widgets/image_picker_widget.dart';
 import 'widgets/meal_time_section_widget.dart';
 
-class RecordFoodView extends ConsumerStatefulWidget {
-  const RecordFoodView({
+class RecordMealView extends ConsumerStatefulWidget {
+  const RecordMealView({
     required this.mealType,
+    required this.date,
     super.key,
   });
 
   final String mealType;
+  final DateTime date;
 
   @override
-  ConsumerState<RecordFoodView> createState() => _RecordFoodViewState();
+  ConsumerState<RecordMealView> createState() => _RecordMealViewState();
 }
 
-class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
+class _RecordMealViewState extends ConsumerState<RecordMealView> {
   final TextEditingController _editingFoodNameController =
       TextEditingController();
 
@@ -34,24 +39,48 @@ class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(recordFoodViewModelProvider.notifier)
-          .init(mealType: widget.mealType);
+      ref.read(recordMealViewModelProvider.notifier).init(
+            mealType: widget.mealType,
+            date: widget.date,
+          );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final RecordFoodState state = ref.watch(recordFoodViewModelProvider);
-    final RecordFoodViewModel viewModel =
-        ref.read(recordFoodViewModelProvider.notifier);
+    final RecordMealState state = ref.watch(recordMealViewModelProvider);
+    final RecordMealViewModel viewModel =
+        ref.read(recordMealViewModelProvider.notifier);
+
+    ref.listen(
+        recordMealViewModelProvider
+            .select((RecordMealState state) => state.saveMealLoadingStatus),
+        (LoadingStatus? previous, LoadingStatus next) {
+      if (next == LoadingStatus.success) {
+        ref.read(homeViewModelProvider.notifier).getMyMealList(
+              date: widget.date,
+            );
+        context.pop();
+      }
+    });
+
+    if (state.saveMealLoadingStatus == LoadingStatus.loading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            color: AppColors.main,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
             title: Text(
-              '${widget.mealType} 기록',
+              '''${DateTimeFormatter.dateTimeFormat(widget.date)} ${widget.mealType} 기록''',
               style: AppTextStyles.textSb22.copyWith(
                 color: AppColors.gray900,
               ),
@@ -68,7 +97,7 @@ class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
                   initialDateTime: state.initialMealTime,
                   onTimeSettingTap: () {
                     viewModel.onConfirmMealTime(
-                      mealTime: ref.read(recordFoodViewModelProvider).mealTime,
+                      mealTime: ref.read(recordMealViewModelProvider).mealTime,
                     );
                     context.pop();
                   },
@@ -161,7 +190,7 @@ class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
               ],
             ),
           ),
-          FoodListSectionWidget(
+          MealFoodListSectionWidget(
             foods: state.foods,
             onDeleteFood: (int index) {
               viewModel.deleteFood(foodIndex: index);
@@ -179,8 +208,7 @@ class _RecordFoodViewState extends ConsumerState<RecordFoodView> {
           ),
           child: FilledTextButtonWidget(
             title: '저장',
-            isEnabled: state.canSave,
-            onPressed: () {},
+            onPressed: state.canSave ? viewModel.saveMeal : null,
           ),
         ),
       ),
@@ -205,9 +233,9 @@ class _CategorySelectBottomSheetWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final RecordFoodState state = ref.watch(recordFoodViewModelProvider);
-    final RecordFoodViewModel viewModel =
-        ref.watch(recordFoodViewModelProvider.notifier);
+    final RecordMealState state = ref.watch(recordMealViewModelProvider);
+    final RecordMealViewModel viewModel =
+        ref.watch(recordMealViewModelProvider.notifier);
 
     return Container(
       decoration: const BoxDecoration(
@@ -351,42 +379,84 @@ class _CategorySelectBottomSheetWidgetState
             )
           else
             Expanded(
-              child: ListView.builder(
-                itemCount: state.searchedFoodCategories.length,
-                itemBuilder: (BuildContext context, int index) => Column(
-                  children: <Widget>[
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.deepMain,
-                        textStyle: AppTextStyles.textR16.copyWith(
-                          color: AppColors.deepMain,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                          horizontal: 16,
-                        ),
-                      ),
-                      onPressed: () {
-                        viewModel.onSelectFoodCategory(
-                          categoryId: state.searchedFoodCategories[index].id,
-                          categoryName:
-                              state.searchedFoodCategories[index].name,
-                        );
-                        context.pop();
-                      },
-                      child: Row(
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: state.searchedFoodCategories.length,
+                      itemBuilder: (BuildContext context, int index) => Column(
                         children: <Widget>[
-                          Text(state.searchedFoodCategories[index].name),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.deepMain,
+                              textStyle: AppTextStyles.textR16.copyWith(
+                                color: AppColors.deepMain,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 16,
+                                horizontal: 16,
+                              ),
+                            ),
+                            onPressed: () {
+                              viewModel.onSelectFoodCategory(
+                                categoryId:
+                                    state.searchedFoodCategories[index].id,
+                                categoryName:
+                                    state.searchedFoodCategories[index].name,
+                              );
+                              context.pop();
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Text(state.searchedFoodCategories[index].name),
+                              ],
+                            ),
+                          ),
+                          if (index == state.searchedFoodCategories.length - 1)
+                            const SizedBox(height: 20),
                         ],
                       ),
                     ),
-                    if (index == state.searchedFoodCategories.length - 1)
-                      const SizedBox(height: 20),
-                  ],
-                ),
+                  ),
+                  // 검색어와 완전히 일치하는 항목이 없을 때 추가 버튼 표시
+                  if (state.searchKeyword.trim().isNotEmpty &&
+                      !state.searchedFoodCategories.any(
+                          (FoodCategoryModel category) =>
+                              category.name == state.searchKeyword))
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: TextButton(
+                        onPressed: () {
+                          viewModel.addToCategory(
+                            category: state.searchKeyword,
+                          );
+                          context.pop();
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.deepMain,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: 16,
+                          ),
+                        ),
+                        child: Text(
+                          '"${state.searchKeyword}" 태그 추가하기',
+                          style: AppTextStyles.textSb16.copyWith(
+                            color: AppColors.deepMain,
+                          ),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
         ],

@@ -32,6 +32,9 @@ class DateTimeFormatter {
   static String fullDateTimeFormat(DateTime dateTime) =>
       DateFormat('yyyy년 MM월 dd일 HH:mm').format(dateTime);
 
+  static String dateTimeFormat(DateTime dateTime) =>
+      DateFormat('MM월 dd일').format(dateTime);
+
   static String timeFormat(DateTime dateTime) =>
       DateFormat('HH:mm').format(dateTime);
 

@@ -27,4 +27,38 @@ class FoodCategoryRemoteDataSource {
 
     return response.map(FoodCategoryEntity.fromJson).toList();
   }
+
+  Future<FoodCategoryEntity> createFoodCategory({
+    required String userId,
+    required String name,
+  }) async {
+    final Map<String, dynamic> response = await _supabaseService.supabaseClient
+        .from('food_category')
+        .insert(<String, String>{
+          'user_id': userId,
+          'name': name,
+        })
+        .select()
+        .single();
+
+    return FoodCategoryEntity.fromJson(response);
+  }
+
+  Future<void> deleteFoodCategory({
+    required String foodCategoryId,
+  }) async {
+    await _supabaseService.supabaseClient
+        .from('food_category')
+        .delete()
+        .eq('id', foodCategoryId);
+  }
+
+  Future<void> updateFoodCategory({
+    required String foodCategoryId,
+    required String name,
+  }) async {
+    await _supabaseService.supabaseClient
+        .from('food_category')
+        .update(<String, String>{'name': name}).eq('id', foodCategoryId);
+  }
 }

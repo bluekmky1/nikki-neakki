@@ -1,37 +1,55 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/loading_status.dart';
+import '../../domain/food_category/model/food_category_model.dart';
 
 class FoodsSettingState extends Equatable {
-  final LoadingStatus loadingStatus;
-  final String example;
-  final int selectedTabIndex;
+  final LoadingStatus getFoodCategoriesLoadingStatus;
+  final LoadingStatus createFoodCategoryLoadingStatus;
+  final LoadingStatus deleteFoodCategoryLoadingStatus;
+  final LoadingStatus updateFoodCategoryLoadingStatus;
+
+  final List<FoodCategoryModel> foodCategories;
 
   const FoodsSettingState({
-    required this.loadingStatus,
-    required this.example,
-    required this.selectedTabIndex,
+    required this.getFoodCategoriesLoadingStatus,
+    required this.createFoodCategoryLoadingStatus,
+    required this.deleteFoodCategoryLoadingStatus,
+    required this.updateFoodCategoryLoadingStatus,
+    required this.foodCategories,
   });
 
-  const FoodsSettingState.init()
-      : loadingStatus = LoadingStatus.none,
-        example = '',
-        selectedTabIndex = 0;
+  FoodsSettingState.init()
+      : getFoodCategoriesLoadingStatus = LoadingStatus.none,
+        createFoodCategoryLoadingStatus = LoadingStatus.none,
+        deleteFoodCategoryLoadingStatus = LoadingStatus.none,
+        updateFoodCategoryLoadingStatus = LoadingStatus.none,
+        foodCategories = <FoodCategoryModel>[];
 
   FoodsSettingState copyWith({
-    LoadingStatus? loadingStatus,
-    String? example,
-    int? selectedTabIndex,
+    LoadingStatus? getFoodCategoriesLoadingStatus,
+    LoadingStatus? createFoodCategoryLoadingStatus,
+    LoadingStatus? deleteFoodCategoryLoadingStatus,
+    LoadingStatus? updateFoodCategoryLoadingStatus,
+    List<FoodCategoryModel>? foodCategories,
   }) =>
       FoodsSettingState(
-        loadingStatus: loadingStatus ?? this.loadingStatus,
-        example: example ?? this.example,
-        selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
+        getFoodCategoriesLoadingStatus: getFoodCategoriesLoadingStatus ??
+            this.getFoodCategoriesLoadingStatus,
+        createFoodCategoryLoadingStatus: createFoodCategoryLoadingStatus ??
+            this.createFoodCategoryLoadingStatus,
+        deleteFoodCategoryLoadingStatus: deleteFoodCategoryLoadingStatus ??
+            this.deleteFoodCategoryLoadingStatus,
+        updateFoodCategoryLoadingStatus: updateFoodCategoryLoadingStatus ??
+            this.updateFoodCategoryLoadingStatus,
+        foodCategories: foodCategories ?? this.foodCategories,
       );
 
   @override
   List<Object> get props => <Object>[
-        loadingStatus,
-        example,
-        selectedTabIndex,
+        getFoodCategoriesLoadingStatus,
+        createFoodCategoryLoadingStatus,
+        deleteFoodCategoryLoadingStatus,
+        updateFoodCategoryLoadingStatus,
+        foodCategories,
       ];
 }

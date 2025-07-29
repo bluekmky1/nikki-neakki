@@ -1,14 +1,19 @@
 import 'package:equatable/equatable.dart';
 import '../../core/loading_status.dart';
+import '../../domain/food_category/model/food_category_model.dart';
 import '../../domain/meal/model/meal_model.dart';
 
 class HomeState extends Equatable {
   // 데이터 로딩 상태
+  final LoadingStatus deleteMealLoadingStatus;
+
   // 전체 식사 데이터 로딩 상태
   final LoadingStatus getMyMealsLoadingStatus;
   final LoadingStatus getOtherMealsLoadingStatus;
   final List<MealModel> myMeals;
   final List<MealModel> otherMeals;
+  final List<FoodCategoryModel> myCategoryNames;
+  final List<FoodCategoryModel> otherCategoryNames;
 
   // 선택 날짜
   final DateTime selectedDate;
@@ -22,6 +27,7 @@ class HomeState extends Equatable {
   final bool shouldJump;
 
   const HomeState({
+    required this.deleteMealLoadingStatus,
     required this.getMyMealsLoadingStatus,
     required this.getOtherMealsLoadingStatus,
     required this.selectedDate,
@@ -31,10 +37,13 @@ class HomeState extends Equatable {
     required this.myMeals,
     required this.otherMeals,
     required this.shouldJump,
+    required this.myCategoryNames,
+    required this.otherCategoryNames,
   });
 
   HomeState.init()
-      : getMyMealsLoadingStatus = LoadingStatus.none,
+      : deleteMealLoadingStatus = LoadingStatus.none,
+        getMyMealsLoadingStatus = LoadingStatus.none,
         getOtherMealsLoadingStatus = LoadingStatus.none,
         selectedDate = DateTime.now(),
         displayWeekStartDate = DateTime.now(),
@@ -42,9 +51,12 @@ class HomeState extends Equatable {
         partnerId = '',
         myMeals = <MealModel>[],
         otherMeals = <MealModel>[],
-        shouldJump = false;
+        shouldJump = false,
+        myCategoryNames = <FoodCategoryModel>[],
+        otherCategoryNames = <FoodCategoryModel>[];
 
   HomeState copyWith({
+    LoadingStatus? deleteMealLoadingStatus,
     LoadingStatus? getMyMealsLoadingStatus,
     LoadingStatus? getOtherMealsLoadingStatus,
     DateTime? selectedDate,
@@ -54,8 +66,12 @@ class HomeState extends Equatable {
     List<MealModel>? myMeals,
     List<MealModel>? otherMeals,
     bool? shouldJump,
+    List<FoodCategoryModel>? myCategoryNames,
+    List<FoodCategoryModel>? otherCategoryNames,
   }) =>
       HomeState(
+        deleteMealLoadingStatus:
+            deleteMealLoadingStatus ?? this.deleteMealLoadingStatus,
         getMyMealsLoadingStatus:
             getMyMealsLoadingStatus ?? this.getMyMealsLoadingStatus,
         getOtherMealsLoadingStatus:
@@ -67,10 +83,13 @@ class HomeState extends Equatable {
         myMeals: myMeals ?? this.myMeals,
         otherMeals: otherMeals ?? this.otherMeals,
         shouldJump: shouldJump ?? this.shouldJump,
+        myCategoryNames: myCategoryNames ?? this.myCategoryNames,
+        otherCategoryNames: otherCategoryNames ?? this.otherCategoryNames,
       );
 
   @override
   List<Object> get props => <Object>[
+        deleteMealLoadingStatus,
         getMyMealsLoadingStatus,
         getOtherMealsLoadingStatus,
         selectedDate,
@@ -79,6 +98,8 @@ class HomeState extends Equatable {
         myMeals,
         otherMeals,
         shouldJump,
+        myCategoryNames,
+        otherCategoryNames,
       ];
 
   bool get isToday {
@@ -93,4 +114,10 @@ class HomeState extends Equatable {
   bool get isInDisplayWeek =>
       !selectedDate.isBefore(displayWeekStartDate) &&
       !selectedDate.isAfter(displayWeekStartDate.add(const Duration(days: 6)));
+
+  bool get isMealLoading =>
+      getMyMealsLoadingStatus == LoadingStatus.none ||
+      getOtherMealsLoadingStatus == LoadingStatus.none ||
+      getMyMealsLoadingStatus == LoadingStatus.loading ||
+      getOtherMealsLoadingStatus == LoadingStatus.loading;
 }

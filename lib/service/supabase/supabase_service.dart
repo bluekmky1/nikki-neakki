@@ -89,17 +89,15 @@ class SupabaseService extends StateNotifier<SupabaseState> {
   Future<String> uploadImage(XFile image) async {
     try {
       final File file = File(image.path);
-      final String fileName = 
+      final String fileName =
           '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
       final String filePath = 'meal_images/$fileName';
 
-      await supabaseClient.storage
-          .from('meal-images')
-          .upload(filePath, file);
+      await supabaseClient.storage.from('meal-images').upload(filePath, file);
 
-      final String imageUrl = supabaseClient.storage
+      final String imageUrl = await supabaseClient.storage
           .from('meal-images')
-          .getPublicUrl(filePath);
+          .createSignedUrl(filePath, 60 * 60 * 24 * 365); // 1년
 
       return imageUrl;
     } catch (e) {
@@ -108,5 +106,10 @@ class SupabaseService extends StateNotifier<SupabaseState> {
       }
       rethrow;
     }
+  }
+
+  // 이미지 삭제 함수
+  Future<void> deleteImage(String imageUrl) async {
+    await supabaseClient.storage.from('meal-images').remove(<String>[imageUrl]);
   }
 }

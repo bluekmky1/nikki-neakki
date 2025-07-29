@@ -45,4 +45,93 @@ class FoodCategoryRepository extends Repository {
       );
     }
   }
+
+  Future<RepositoryResult<FoodCategoryEntity>> createFoodCategory({
+    required String userId,
+    required String name,
+  }) async {
+    try {
+      final FoodCategoryEntity foodCategory =
+          await _foodCategoryRemoteDataSource.createFoodCategory(
+        userId: userId,
+        name: name,
+      );
+      return SuccessRepositoryResult<FoodCategoryEntity>(
+        data: foodCategory,
+      );
+    } on PostgrestException catch (e) {
+      return FailureRepositoryResult<FoodCategoryEntity>(
+        error: e,
+        messages: <String>['음식 카테고리를 생성하는 과정에 오류가 발생했습니다: ${e.message}'],
+      );
+    } on AuthException catch (e) {
+      return FailureRepositoryResult<FoodCategoryEntity>(
+        error: e,
+        messages: <String>['인증 오류가 발생했습니다: ${e.message}'],
+      );
+    } on Exception catch (e) {
+      return FailureRepositoryResult<FoodCategoryEntity>(
+        error: e,
+        messages: <String>['예상치 못한 오류가 발생했습니다'],
+      );
+    }
+  }
+
+  Future<RepositoryResult<void>> deleteFoodCategory({
+    required String foodCategoryId,
+  }) async {
+    try {
+      await _foodCategoryRemoteDataSource.deleteFoodCategory(
+        foodCategoryId: foodCategoryId,
+      );
+      return const SuccessRepositoryResult<void>(
+        data: null,
+      );
+    } on PostgrestException catch (e) {
+      return FailureRepositoryResult<void>(
+        error: e,
+        messages: <String>['음식 카테고리를 삭제하는 과정에 오류가 발생했습니다: ${e.message}'],
+      );
+    } on AuthException catch (e) {
+      return FailureRepositoryResult<void>(
+        error: e,
+        messages: <String>['인증 오류가 발생했습니다: ${e.message}'],
+      );
+    } on Exception catch (e) {
+      return FailureRepositoryResult<void>(
+        error: e,
+        messages: <String>['예상치 못한 오류가 발생했습니다'],
+      );
+    }
+  }
+
+  Future<RepositoryResult<void>> updateFoodCategory({
+    required String foodCategoryId,
+    required String name,
+  }) async {
+    try {
+      await _foodCategoryRemoteDataSource.updateFoodCategory(
+        foodCategoryId: foodCategoryId,
+        name: name,
+      );
+      return const SuccessRepositoryResult<void>(
+        data: null,
+      );
+    } on PostgrestException catch (e) {
+      return FailureRepositoryResult<void>(
+        error: e,
+        messages: <String>['음식 카테고리를 수정하는 과정에 오류가 발생했습니다: ${e.message}'],
+      );
+    } on AuthException catch (e) {
+      return FailureRepositoryResult<void>(
+        error: e,
+        messages: <String>['인증 오류가 발생했습니다: ${e.message}'],
+      );
+    } on Exception catch (e) {
+      return FailureRepositoryResult<void>(
+        error: e,
+        messages: <String>['예상치 못한 오류가 발생했습니다'],
+      );
+    }
+  }
 }

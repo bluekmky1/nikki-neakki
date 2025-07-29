@@ -10,6 +10,7 @@ class MealModel extends Equatable {
   final DateTime mealTime;
   final MealType mealType;
   final List<FoodModel> foods;
+  final DateTime createdAt;
 
   const MealModel({
     required this.id,
@@ -18,6 +19,7 @@ class MealModel extends Equatable {
     required this.mealTime,
     required this.mealType,
     required this.foods,
+    required this.createdAt,
   });
 
   factory MealModel.fromEntity({
@@ -35,6 +37,7 @@ class MealModel extends Equatable {
             entity: entity.foods[index],
           ),
         ),
+        createdAt: entity.createdAt,
       );
 
   @override
@@ -45,5 +48,6 @@ class MealModel extends Equatable {
         mealTime,
         mealType,
         foods,
+        createdAt,
       ];
 }

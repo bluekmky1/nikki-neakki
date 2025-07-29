@@ -4,10 +4,12 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/loading_status.dart';
 import '../../domain/food_category/model/food_category_model.dart';
 import '../../domain/meal/model/food_model.dart';
-import '../../ui/common/consts/meal_type.dart';
+import '../common/consts/meal_type.dart';
 
-class RecordFoodState extends Equatable {
-  final LoadingStatus loadingStatus;
+class RecordMealState extends Equatable {
+  final LoadingStatus createFoodCategoryLoadingStatus;
+  final LoadingStatus saveMealLoadingStatus;
+
   // 음식 추가 화면
   // 시간 선택
   final DateTime initialMealTime;
@@ -24,8 +26,8 @@ class RecordFoodState extends Equatable {
   final List<FoodCategoryModel> searchedFoodCategories;
   final XFile pickedImage;
 
-  const RecordFoodState({
-    required this.loadingStatus,
+  const RecordMealState({
+    required this.createFoodCategoryLoadingStatus,
     required this.initialMealTime,
     required this.mealTime,
     required this.selectedFoodCategoryId,
@@ -36,10 +38,11 @@ class RecordFoodState extends Equatable {
     required this.searchedFoodCategories,
     required this.pickedImage,
     required this.mealType,
+    required this.saveMealLoadingStatus,
   });
 
-  RecordFoodState.init()
-      : loadingStatus = LoadingStatus.none,
+  RecordMealState.init()
+      : createFoodCategoryLoadingStatus = LoadingStatus.none,
         initialMealTime = DateTime.now(),
         mealTime = DateTime.now(),
         selectedFoodCategoryId = '',
@@ -49,10 +52,11 @@ class RecordFoodState extends Equatable {
         allFoodCategories = const <FoodCategoryModel>[],
         searchedFoodCategories = const <FoodCategoryModel>[],
         pickedImage = XFile(''),
-        mealType = MealType.none;
+        mealType = MealType.none,
+        saveMealLoadingStatus = LoadingStatus.none;
 
-  RecordFoodState copyWith({
-    LoadingStatus? loadingStatus,
+  RecordMealState copyWith({
+    LoadingStatus? createFoodCategoryLoadingStatus,
     DateTime? initialMealTime,
     DateTime? mealTime,
     String? selectedFoodCategoryId,
@@ -63,9 +67,11 @@ class RecordFoodState extends Equatable {
     List<FoodCategoryModel>? searchedFoodCategories,
     XFile? pickedImage,
     MealType? mealType,
+    LoadingStatus? saveMealLoadingStatus,
   }) =>
-      RecordFoodState(
-        loadingStatus: loadingStatus ?? this.loadingStatus,
+      RecordMealState(
+        createFoodCategoryLoadingStatus: createFoodCategoryLoadingStatus ??
+            this.createFoodCategoryLoadingStatus,
         initialMealTime: initialMealTime ?? this.initialMealTime,
         mealTime: mealTime ?? this.mealTime,
         selectedFoodCategoryId:
@@ -79,11 +85,13 @@ class RecordFoodState extends Equatable {
             searchedFoodCategories ?? this.searchedFoodCategories,
         pickedImage: pickedImage ?? this.pickedImage,
         mealType: mealType ?? this.mealType,
+        saveMealLoadingStatus:
+            saveMealLoadingStatus ?? this.saveMealLoadingStatus,
       );
 
   @override
   List<Object?> get props => <Object?>[
-        loadingStatus,
+        createFoodCategoryLoadingStatus,
         initialMealTime,
         mealTime,
         selectedFoodCategoryId,
@@ -94,10 +102,8 @@ class RecordFoodState extends Equatable {
         searchedFoodCategories,
         pickedImage,
         mealType,
+        saveMealLoadingStatus,
       ];
 
-  bool get canSave =>
-      foods.isNotEmpty &&
-      pickedImage.path.isNotEmpty &&
-      mealType != MealType.none;
+  bool get canSave => foods.isNotEmpty && pickedImage.path.isNotEmpty;
 }

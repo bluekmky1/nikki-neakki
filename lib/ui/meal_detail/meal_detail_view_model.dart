@@ -32,6 +32,7 @@ class MealDetailViewModel extends StateNotifier<MealDetailState> {
         FoodModel(id: '2', name: '계란후라이', categoryId: '2'),
         FoodModel(id: '3', name: '미소된장국', categoryId: '3'),
       ],
+      createdAt: DateTime.now(),
     );
 
     state = state.copyWith(

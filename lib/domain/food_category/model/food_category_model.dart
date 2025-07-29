@@ -20,6 +20,17 @@ class FoodCategoryModel extends Equatable {
         createdAt: entity.createdAt,
       );
 
+  FoodCategoryModel copyWith({
+    String? id,
+    String? name,
+    DateTime? createdAt,
+  }) =>
+      FoodCategoryModel(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        createdAt: createdAt ?? this.createdAt,
+      );
+
   @override
   List<Object> get props => <Object>[
         id,

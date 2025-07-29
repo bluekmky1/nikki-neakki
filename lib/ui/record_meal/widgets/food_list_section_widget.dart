@@ -5,14 +5,14 @@ import '../../../domain/food_category/model/food_category_model.dart';
 import '../../../domain/meal/model/food_model.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
-import '../record_food_state.dart';
-import '../record_food_view_model.dart';
+import '../record_meal_state.dart';
+import '../record_meal_view_model.dart';
 
-class FoodListSectionWidget extends ConsumerWidget {
+class MealFoodListSectionWidget extends ConsumerWidget {
   final List<FoodModel> foods;
   final void Function(int) onDeleteFood;
 
-  const FoodListSectionWidget({
+  const MealFoodListSectionWidget({
     required this.foods,
     required this.onDeleteFood,
     super.key,
@@ -20,7 +20,7 @@ class FoodListSectionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final RecordFoodState state = ref.watch(recordFoodViewModelProvider);
+    final RecordMealState state = ref.watch(recordMealViewModelProvider);
     return SliverList.builder(
       itemCount: foods.length,
       itemBuilder: (BuildContext context, int index) => Padding(

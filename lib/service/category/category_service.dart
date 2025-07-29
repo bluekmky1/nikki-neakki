@@ -72,4 +72,34 @@ class CategoryService extends StateNotifier<CategoryState> {
         );
     }
   }
+
+  void createFoodCategory({required FoodCategoryModel foodCategory}) {
+    state = state.copyWith(
+      myFoodCategories: <FoodCategoryModel>[
+        ...state.myFoodCategories,
+        foodCategory,
+      ],
+    );
+  }
+
+  void updateFoodCategory(
+      {required String foodCategoryId, required String name}) {
+    state = state.copyWith(
+      myFoodCategories: state.myFoodCategories
+          .map((FoodCategoryModel foodCategory) =>
+              foodCategory.id == foodCategoryId
+                  ? foodCategory.copyWith(name: name)
+                  : foodCategory)
+          .toList(),
+    );
+  }
+
+  void deleteFoodCategory({required String foodCategoryId}) {
+    state = state.copyWith(
+      myFoodCategories: state.myFoodCategories
+          .where((FoodCategoryModel foodCategory) =>
+              foodCategory.id != foodCategoryId)
+          .toList(),
+    );
+  }
 }
